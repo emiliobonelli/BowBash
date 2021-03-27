@@ -1,0 +1,15 @@
+name: BowBash
+version: 0.7
+main: eu.proxyservices.bowbash.BowBash
+author: ProxyUser
+database: true
+commands:
+  bb:
+
+  stats:
+
+  endless:
+
+  savestats:
+
+softdepend: [ HolographicDisplays ]
