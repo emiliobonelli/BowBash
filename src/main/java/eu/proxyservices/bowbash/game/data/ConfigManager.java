@@ -1,19 +1,24 @@
 package eu.proxyservices.bowbash.game.data;
 
+import eu.proxyservices.bowbash.BowBash;
+import eu.proxyservices.bowbash.game.GameMap;
 import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.GameTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class ConfigManager {
 
-    private static HashMap<GameTeam, Location> map_loc_cache = new HashMap<>();
+    private static final HashMap<GameTeam, Location> map_loc_cache = new HashMap<>();
 
     private static YamlConfiguration loc_yml;
     private static YamlConfiguration cnf_yml;
@@ -22,34 +27,29 @@ public class ConfigManager {
     static GameSession gameSession;
     static Location specspawn = null;
 
-    public ConfigManager(GameSession gameSession) {
+    public ConfigManager() {
         loc_file = new File("plugins/BowBash/locations.yml");
         cnf_file = new File("plugins/BowBash/config.yml");
         loc_yml = YamlConfiguration.loadConfiguration(loc_file);
         cnf_yml = YamlConfiguration.loadConfiguration(cnf_file);
-        ConfigManager.gameSession = gameSession;
     }
 
-    public static void loadLocations() {
-        String map = "1";
+    public static List<String> loadMaps() {
         if (loc_yml != null) {
-            gameSession.setMap(map);
-            map_loc_cache.put(GameTeam.BLUE, loadSpawn(map, GameTeam.BLUE.getName()));
-            map_loc_cache.put(GameTeam.RED, loadSpawn(map, GameTeam.RED.getName()));
-            specspawn = loadSpawn(map, "Spectator");
+            return cnf_yml.getStringList("maps");
         }
+        throw new NullPointerException("ConfigManager: no maps in location.yml found! Cannot load maps!");
     }
 
-    public static Location getSpawn(GameTeam gameTeam) {
-        return map_loc_cache.get(gameTeam);
+    public static GameMap loadMap(String map) {
+        if (loc_yml != null) {
+            return new GameMap(map, loc_yml.getString(map + ".author"), loc_yml.getInt(map + ".teams"), Material.matchMaterial(Objects.requireNonNull(loc_yml.getString(map + ".item"))));
+        }
+        throw new NullPointerException("ConfigManager: no maps in location.yml found! Cannot load maps!");
     }
 
-    public static Location getSpecSpawn() {
-        return specspawn;
-    }
 
-
-    private static Location loadSpawn(String map, String team) {
+    public static Location loadSpawn(String map, String team) {
         World w = Bukkit.getWorld(loc_yml.getString(map + ".world"));
         double x = loc_yml.getDouble(map + ".spawn." + team + ".x");
         double y = loc_yml.getDouble(map + ".spawn." + team + ".y");
@@ -73,7 +73,7 @@ public class ConfigManager {
         }
     }
 
-    public static HashMap loadDatabaseSettings() {
+    public static HashMap<String, String> loadDatabaseSettings() {
         HashMap<String, String> settings = new HashMap<>();
         settings.put("username", cnf_yml.getString("MongoDB.username"));
         settings.put("password", cnf_yml.getString("MongoDB.password"));

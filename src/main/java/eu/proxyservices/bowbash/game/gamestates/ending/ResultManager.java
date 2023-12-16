@@ -3,14 +3,15 @@ package eu.proxyservices.bowbash.game.gamestates.ending;
 import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.GameTeam;
+import eu.proxyservices.bowbash.game.countdown.EndingCountdown;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class ResultManager {
 
     private final GameSession gameSession;
-    private int minNeeded = 1;
-    private boolean endless = false;
+    private final int minNeeded = 1;
+    private final boolean endless = false;
 
     public ResultManager(GameSession gameSession) {
         this.gameSession = gameSession;
@@ -27,13 +28,15 @@ public class ResultManager {
             }
         }
         if (Bukkit.getOnlinePlayers().size() <= minNeeded) {
-            Bukkit.broadcastMessage(BowBash.prefix + "§cDas ist Spiel vorbei, da zu viele die Runde verlassen haben.");
-        } else if (highest >= 10) {
-            //Needed?
+                Bukkit.broadcastMessage(BowBash.prefix + "§cDas Spiel ist vorbei, da zu wenig Spieler online sind.");
         }
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendTitle(winner.getColorCode() + winner.getName(), "§7hat gewonnen");
+        if (winner != null) {
+            Bukkit.broadcastMessage(BowBash.prefix + "§7Team §b" + winner.getName() + " §7hat das Spiel gewonnen!");
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendTitle(winner.getColorCode() + winner.getName(), "§7hat gewonnen", 10, 80, 10);
+            }
         }
+        new EndingCountdown();
     }
 
 }

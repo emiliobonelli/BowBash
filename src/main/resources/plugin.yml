@@ -3,13 +3,24 @@ version: 0.7
 main: eu.proxyservices.bowbash.BowBash
 author: ProxyUser
 database: true
+api-version: 1.20
 commands:
-  bb:
+  setup:
+    description: BowBash setup command
+    usage: /setup setspawn <map> <team>
+    aliases: [bowbash]
+    permission: bb.admin
+    permission-message: You don't have permission to use this command.
 
   stats:
+    description: BowBash stats command
+    usage: /stats <player>
+    aliases: [stat]
 
   endless:
+    description: BowBash endless command
+    usage: /endless
 
   savestats:
-
-softdepend: [ HolographicDisplays ]
+    description: BowBash savestats command
+    usage: /savestats

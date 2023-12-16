@@ -6,6 +6,9 @@ import eu.proxyservices.bowbash.game.countdown.Countdown;
 import eu.proxyservices.bowbash.game.countdown.EndingCountdown;
 import eu.proxyservices.bowbash.game.countdown.IngameCountdown;
 import eu.proxyservices.bowbash.game.countdown.LobbyCountdown;
+import eu.proxyservices.bowbash.game.data.ConfigManager;
+import eu.proxyservices.bowbash.game.gamestates.ending.ResultManager;
+import eu.proxyservices.bowbash.game.gamestates.ingame.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -15,18 +18,17 @@ import java.util.List;
 import java.util.Map;
 
 public class DefaultGameSession implements GameSession {
-    private Map<Player, GamePlayer> gamePlayerMap = Maps.newConcurrentMap();
+    private final Map<Player, GamePlayer> gamePlayerMap = Maps.newConcurrentMap();
     private final ArrayList<GameTeam> gameTeams = new ArrayList<>();
     private final int maxPlayersPerTeam;
 
     private GameState gameState;
     private Countdown countdown;
-    private String map;
+    private GameMap map;
 
     public DefaultGameSession(List<GameTeam> teams, int maxPlayersPerTeam) {
         gameTeams.addAll(teams);
         this.maxPlayersPerTeam = maxPlayersPerTeam;
-        // new GameScoreList(this);
     }
 
     public GameState getCurrentGameState() {
@@ -74,19 +76,20 @@ public class DefaultGameSession implements GameSession {
         if (gameState == GameState.LOBBY) {
             countdown = new LobbyCountdown(this);
         } else if (gameState == GameState.IN_GAME) {
-            Countdown igncn = new IngameCountdown(this);
-            igncn.start();
+            new IngameCountdown(this);
+            GameManager.runScoreboard();
+
         } else if (gameState == GameState.ENDING) {
-            Countdown ecn = new EndingCountdown(this);
-            ecn.start();
+            new ResultManager(this);
         }
     }
 
+    // todo: move to LobbyManager
     @Override
     public void joinGameTeam(GamePlayer gamePlayer, GameTeam targetGameTeam) {
         if (targetGameTeam == gamePlayer.getGameTeam()) {
             gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDu bist bereits in diesem Team!");
-            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.ANVIL_BREAK, 2, 2);
+            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.BLOCK_ANVIL_BREAK, 2, 2);
         } else if (targetGameTeam.getGamePlayerList().size() >= maxPlayersPerTeam) {
             gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDieses Team ist bereits voll!");
         } else {
@@ -96,7 +99,7 @@ public class DefaultGameSession implements GameSession {
             gamePlayer.setGameTeam(targetGameTeam);
             targetGameTeam.getGamePlayerList().add(gamePlayer);
             gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + targetGameTeam.getColorCode() + "Team " + targetGameTeam.getName());
-            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.LEVEL_UP, 2, 2);
+            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2, 2);
         }
     }
 
@@ -120,12 +123,13 @@ public class DefaultGameSession implements GameSession {
     }
 
     @Override
-    public void setMap(String map) {
+    public void setMap(GameMap map) {
         this.map = map;
     }
 
     @Override
-    public String getMap() {
+    public GameMap getMap() {
         return this.map;
     }
+
 }

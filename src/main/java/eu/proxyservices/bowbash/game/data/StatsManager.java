@@ -1,6 +1,5 @@
 package eu.proxyservices.bowbash.game.data;
 
-import com.mongodb.ConnectionString;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -15,7 +14,7 @@ import static eu.proxyservices.bowbash.game.data.StatsType.BLOCKS_PLACED;
 public class StatsManager {
 
     private static MongoClient mongoClient = null;
-    private ConnectionString conn = null;
+
     private static MongoCollection<Document> coll = null;
     private static boolean isConnected;
     private static boolean isEnabled = true;
@@ -25,13 +24,22 @@ public class StatsManager {
     }
 
     public static void connect(HashMap<String, String> settings) {
+        try {
         String url = "mongodb+srv://" + settings.get("username") + ":" + settings.get("password") + "@" + settings.get("url") + "/?retryWrites=true&w=majority";
         StatsManager.mongoClient = MongoClients.create(url);
         StatsManager.coll = mongoClient.getDatabase(settings.get("database")).getCollection(settings.get("collection"));
+        } catch (Exception e) {
+            Bukkit.getConsoleSender().sendMessage("§7[DATABASE] §cCould not connect to database!");
+            disableStats();
+        }
 
         if (mongoClient != null) {
             isConnected = true;
             Bukkit.getConsoleSender().sendMessage("§7[DATABASE] §aConnected to database!");
+        } else {
+            isConnected = false;
+            Bukkit.getConsoleSender().sendMessage("§7[DATABASE] §cCould not connect to database!");
+            disableStats();
         }
     }
 
@@ -73,13 +81,6 @@ public class StatsManager {
         }
     }
 
-    /**
-     * Version: 2.0
-     * Caching!
-     * Getter: One-Time getStats + local cache
-     * Setter: Serverstop One-Time save
-     */
-
     static HashMap<UUID, Integer> kills = new HashMap<>();
     static HashMap<UUID, Integer> deaths = new HashMap<>();
     static HashMap<UUID, Integer> shots = new HashMap<>();
@@ -107,10 +108,13 @@ public class StatsManager {
         }
     }
 
-    public static Map getStats(UUID uuid) {
+    public static Map<StatsType, Integer> getStats(UUID uuid) {
         HashMap<StatsType, Integer> stats = new HashMap<>();
         if (!loaded.contains(uuid)) {
             loadUser(uuid);
+        }
+        if (!isEnabled) {
+            return null;
         }
         for (StatsType statsType : StatsType.values()) {
             switch (statsType) {
@@ -138,32 +142,6 @@ public class StatsManager {
         }
         return stats;
     }
-
-    public static Integer getSingleStat(UUID uuid, StatsType st) {
-        int i = -1;
-        if (!loaded.contains(uuid)) {
-            loadUser(uuid);
-        }
-        switch (st) {
-            case KILLS: {
-                return kills.get(uuid);
-            }
-            case DEATHS: {
-                return deaths.get(uuid);
-            }
-            case SHOTS: {
-                return shots.get(uuid);
-            }
-            case BLOCKS_PLACED: {
-                return blocks_placed.get(uuid);
-            }
-            case WINS: {
-                return wins.get(uuid);
-            }
-        }
-        return i;
-    }
-
     public static void updateStat(UUID uuid, StatsType st) {
         if (!loaded.contains(uuid)) {
             loadUser(uuid);
@@ -192,7 +170,7 @@ public class StatsManager {
         }
     }
 
-    public static boolean areStatsActive() {
+    public static boolean isEnabled() {
         return isEnabled;
     }
 
@@ -200,8 +178,13 @@ public class StatsManager {
         isEnabled = false;
     }
 
-    public static void enableStats() {
-        isEnabled = true;
+    public static boolean enableStats() {
+        if (isConnected) {
+            isEnabled = true;
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

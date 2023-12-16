@@ -32,7 +32,7 @@ import java.util.HashMap;
 public class GameManager implements Listener {
 
     private final GameSession gameSession;
-    private HashMap<Player, Player> pvp_cache = new HashMap<>();
+    private final HashMap<Player, Player> pvp_cache = new HashMap<>();
     public static ArrayList<Location> mapchanges = new ArrayList<>();
     private static boolean endlessRound = false;
 
@@ -46,7 +46,6 @@ public class GameManager implements Listener {
 
     public GameManager(GameSession gameSession) {
         this.gameSession = gameSession;
-        runScoreboard();
     }
 
     private static Scoreboard Scoreboard() {
@@ -65,13 +64,10 @@ public class GameManager implements Listener {
         return board;
     }
 
-    public void runScoreboard() {
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(BowBash.plugin, new Runnable() {
-            @Override
-            public void run() {
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    player.setScoreboard(Scoreboard());
-                }
+    public static void runScoreboard() {
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(BowBash.plugin, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.setScoreboard(Scoreboard());
             }
         }, 20L, 20L);
     }
@@ -79,7 +75,7 @@ public class GameManager implements Listener {
     @EventHandler
     public void respawn(PlayerRespawnEvent e) {
         if (gameSession.isRunning() && gameSession.getGamePlayer(e.getPlayer()) != null) {
-            e.setRespawnLocation((ConfigManager.getSpawn(gameSession.getGamePlayer(e.getPlayer()).getGameTeam())));
+            e.setRespawnLocation(gameSession.getGamePlayer(e.getPlayer()).getGameTeam().getSpawnLocation());
             e.getPlayer().getInventory().clear();
             KitManager.gameItems(e.getPlayer());
             /**
@@ -135,9 +131,7 @@ public class GameManager implements Listener {
         org.bukkit.entity.Player p = e.getEntity();
         if (gameSession.isRunning()) {
             if (e.getEntity().getKiller() != null) {
-                if (pvp_cache.containsKey(p)) {
-                    pvp_cache.remove(p);
-                }
+                pvp_cache.remove(p);
                 Player killer = e.getEntity().getKiller();
                 Bukkit.broadcastMessage(BowBash.prefix + "§e" + p.getName() + " §7wurde von §c" + killer.getName() + " §7getötet.");
                 gameSession.getGamePlayer(killer).getGameTeam().addPoint();
@@ -179,22 +173,13 @@ public class GameManager implements Listener {
     @EventHandler
     public void check(EntityShootBowEvent e) {
         if (e.getEntity().getType() == EntityType.PLAYER && gameSession.isRunning()) {
-            StatsManager.updateStat(e.getEntity().getUniqueId(), StatsType.SHOTS);
             Player p = (Player) e.getEntity();
-            if (p.getInventory().contains(Material.STAINED_GLASS)) {
-                for (ItemStack i : p.getInventory().getContents()) {
-                    if (i != null) {
-                        if (i.getType() == Material.STAINED_GLASS) {
-                            int preAmount = i.getAmount();
-                            int newAmount = preAmount - 1;
-                            i.setAmount(newAmount);
-                            break;
-                        }
-                    }
-                }
+            if (p.getInventory().contains(gameSession.getGamePlayer(p).getGameTeam().getGlassBlock())) {
+                p.getInventory().removeItem(new ItemStack(gameSession.getGamePlayer(p).getGameTeam().getGlassBlock(), 1));
+
             } else {
                 e.setCancelled(true);
-                p.sendMessage(BowBash.prefix + "§cDu hast kein Glas im Inventar!");
+                p.sendMessage(BowBash.prefix + "§cDu hast keine Munition mehr!");
             }
         } else {
             e.setCancelled(true);
@@ -214,7 +199,7 @@ public class GameManager implements Listener {
                     hitBlock = iterator.next();
                     if (isValidBlock(hitBlock.getY())) {
                         arrow.remove();
-                        if (hitBlock.getType() == Material.STAINED_GLASS) {
+                        if (hitBlock.getType() == Material.matchMaterial("STAINED_GLASS")) {
                             Location loc = new Location(hitBlock.getWorld(), hitBlock.getX(), hitBlock.getY(), hitBlock.getZ());
                             if (mapchanges.contains(loc)) {
                                 hitBlock.setType(Material.AIR);
@@ -231,9 +216,8 @@ public class GameManager implements Listener {
     @EventHandler
     public void b2(BlockBreakEvent e) {
         if (e.getPlayer().getGameMode() == GameMode.SURVIVAL && gameSession.isRunning()) {
-            if (e.getBlock().getType() == Material.STAINED_GLASS && mapchanges.contains(e.getBlock().getLocation())) {
-                e.getPlayer().getInventory().addItem(new ItemStack(Material.STAINED_GLASS, 1, gameSession.getGamePlayer(e.getPlayer()).getGameTeam().getTeamDurabId()));
-                e.setCancelled(false);
+            if (e.getBlock().getType() == Material.matchMaterial("STAINED_GLASS") && mapchanges.contains(e.getBlock().getLocation())) {
+                e.getPlayer().getInventory().addItem(new ItemStack(gameSession.getGamePlayer(e.getPlayer()).getGameTeam().getGlassBlock(), 1));
             } else {
                 e.setCancelled(true);
             }
@@ -245,9 +229,8 @@ public class GameManager implements Listener {
         if (gameSession.isRunning()) {
             StatsManager.updateStat(e.getPlayer().getUniqueId(), StatsType.BLOCKS_PLACED);
             if (e.getPlayer().getGameMode() == GameMode.SURVIVAL) {
-                if (e.getBlock().getType() == Material.STAINED_GLASS) {
+                if (e.getBlock().getType() == Material.matchMaterial("STAINED_GLASS")) {
                     mapchanges.add(e.getBlockPlaced().getLocation());
-                    e.setCancelled(false);
                 } else {
                     e.setCancelled(true);
                 }
@@ -257,10 +240,10 @@ public class GameManager implements Listener {
 
     @EventHandler
     public void b1(BlockDamageEvent e) {
-        if (gameSession.isRunning() && e.getBlock().getType() == Material.STAINED_GLASS && e.getPlayer().getGameMode() == GameMode.SURVIVAL) {
+        if (gameSession.isRunning() && e.getBlock().getType() == Material.matchMaterial("STAINED_GLASS") && e.getPlayer().getGameMode() == GameMode.SURVIVAL) {
             if (!mapchanges.contains(e.getBlock().getLocation())) {
                 e.setCancelled(true);
-                e.getPlayer().getInventory().addItem(new ItemStack(Material.STAINED_GLASS, 1, gameSession.getGamePlayer(e.getPlayer()).getGameTeam().getTeamDurabId()));
+                e.getPlayer().getInventory().addItem(new ItemStack(gameSession.getGamePlayer(e.getPlayer()).getGameTeam().getGlassBlock(), 1));
             }
         }
     }

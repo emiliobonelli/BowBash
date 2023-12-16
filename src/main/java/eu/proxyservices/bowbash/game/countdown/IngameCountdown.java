@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class IngameCountdown implements Countdown, Listener {
 
-    private int taskId = -1;
+    private final int taskId = -1;
     private int currentTime = 5;
     private final GameSession gameSession;
 
@@ -40,13 +40,13 @@ public class IngameCountdown implements Countdown, Listener {
         if (currentTime == 0) {
             interrupt();
             for (Player current : Bukkit.getOnlinePlayers()) {
-                current.playSound(current.getLocation(), Sound.LEVEL_UP, 1, 2);
+                current.playSound(current.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 2);
                 current.sendMessage(BowBash.prefix + "§aDas Spiel startet!");
                 KitManager.gameItems(current);
             }
         } else {
             for (Player current : Bukkit.getOnlinePlayers()) {
-                current.playSound(current.getLocation(), Sound.NOTE_PLING, 1, 1);
+                current.playSound(current.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
                 current.sendMessage(BowBash.prefix + "§7Das Spiel startet in " + currentTime + "...");
             }
         }
@@ -54,7 +54,7 @@ public class IngameCountdown implements Countdown, Listener {
 
     @EventHandler
     public void move1(PlayerMoveEvent e) {
-        if (isRunning() && e.getFrom().getWorld() != e.getPlayer().getWorld() && gameSession.getGamePlayer(e.getPlayer()) != null) {
+        if (isRunning() &&  gameSession.getGamePlayer(e.getPlayer()) != null) {
             e.setCancelled(true);
         }
     }

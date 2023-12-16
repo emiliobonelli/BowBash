@@ -4,6 +4,6 @@ public enum GameState {
 
     LOBBY(),
     IN_GAME(),
-    ENDING();
+    ENDING()
 
 }

@@ -2,5 +2,19 @@
 # Project exclude paths
 /out/
 /target/
-/.gradle/
-/.idea/
+/build/
+# Gradle files
+.gradle/
+gradle/
+src/main/META-INF/
+gradlew
+gradlew.bat
+
+# Logs
+*.log
+
+# IntelliJ
+*.iml
+*.ipr
+*.iws
+.idea/

@@ -2,10 +2,7 @@ package eu.proxyservices.bowbash.game.listener;
 
 import eu.proxyservices.bowbash.game.GamePlayer;
 import eu.proxyservices.bowbash.game.GameSession;
-import org.bukkit.Bukkit;
-import org.bukkit.Difficulty;
-import org.bukkit.GameMode;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,12 +14,16 @@ import org.bukkit.event.weather.WeatherChangeEvent;
 
 public class GameDesignListener implements Listener {
 
-    private GameSession gameSession;
+    private final GameSession gameSession;
 
     public GameDesignListener(GameSession gameSession) {
         for (World w : Bukkit.getWorlds()) {
-            w.setAnimalSpawnLimit(0);
-            w.setAmbientSpawnLimit(0);
+            w.setTime(6000);
+            w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+            w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+            w.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+            w.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
+            w.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
             w.setDifficulty(Difficulty.PEACEFUL);
             w.setThundering(false);
             w.setStorm(false);
@@ -34,13 +35,11 @@ public class GameDesignListener implements Listener {
     @EventHandler
     public void drop(PlayerDropItemEvent e) {
         if (e.getPlayer().getGameMode() == GameMode.SURVIVAL) {
+            if (gameSession.isRunning() && e.getItemDrop().getItemStack().getType() == Material.GLASS) {
+                return;
+            }
             e.setCancelled(true);
         }
-    }
-
-    @EventHandler
-    public void rain(WeatherChangeEvent e) {
-        e.setCancelled(true);
     }
 
     @EventHandler

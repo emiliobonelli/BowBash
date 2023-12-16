@@ -6,7 +6,7 @@ import eu.proxyservices.bowbash.game.GamePlayer;
 import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.GameState;
 import eu.proxyservices.bowbash.game.data.ConfigManager;
-import org.apache.commons.lang.Validate;
+import eu.proxyservices.bowbash.game.data.StatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 public class LobbyCountdown implements Countdown {
-    private GameSession gameSession;
+    private final GameSession gameSession;
 
     private BukkitTask bukkitTask;
     private int currentTime = 20;
@@ -37,13 +37,11 @@ public class LobbyCountdown implements Countdown {
     }
 
     public void interrupt() {
-        Validate.notNull(bukkitTask);
-
         bukkitTask.cancel();
         bukkitTask = null;
         currentTime = 20;
         for (Player current : Bukkit.getOnlinePlayers()) {
-            current.sendTitle("", "");
+            current.sendTitle("", "", 0, 0, 0);
             current.setLevel(20);
         }
     }
@@ -70,7 +68,7 @@ public class LobbyCountdown implements Countdown {
                 if (gp.getGameTeam() == null) {
                     gameSession.joinRandomTeam(gp);
                 }
-                current.teleport(ConfigManager.getSpawn(gp.getGameTeam()));
+                current.teleport(gp.getGameTeam().getSpawnLocation());
                 current.getInventory().clear();
                 current.setExp(0);
             }
@@ -79,30 +77,31 @@ public class LobbyCountdown implements Countdown {
         } else if (currentTime == 1) {
             Bukkit.broadcastMessage(BowBash.prefix + "§7Die Lobbyphase endet in §eeiner §7Sekunde.");
             for (Player current : Bukkit.getOnlinePlayers()) {
-                current.playSound(current.getLocation(), Sound.NOTE_PLING, 2, 1);
-                current.sendTitle("§e1", " ");
+                current.playSound(current.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 2, 1);
+                current.sendTitle("§e1", " ", 0, 20, 0);
             }
-        } else if (currentTime == 2 || currentTime == 3) {
+        } else if (currentTime >= 2 && currentTime <= 5 || currentTime == 15) {
             Bukkit.broadcastMessage(BowBash.prefix + "§7Die Lobbyphase endet in §e" + currentTime + " §7Sekunden.");
             for (Player current : Bukkit.getOnlinePlayers()) {
-                current.playSound(current.getLocation(), Sound.NOTE_PLING, 2, 1);
-                current.sendTitle("§e" + currentTime, " ");
+                current.playSound(current.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 2, 1);
+                current.sendTitle("§e" + currentTime, " ", 0, 20, 0);
             }
         } else if (currentTime == 10) {
             for (Player current : Bukkit.getOnlinePlayers()) {
-                current.playSound(current.getLocation(), Sound.NOTE_PLING, 2, 1);
+                current.playSound(current.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 2, 1);
+                current.sendTitle("§e" + currentTime, " ", 0, 20, 0);
                 current.getInventory().remove(Material.GOLD_NUGGET);
-                current.getInventory().remove(Material.EMPTY_MAP);
+                current.getInventory().remove(Material.MAP);
                 current.closeInventory();
             }
-            ConfigManager.loadLocations();
+            // todo: close poll for map and load most voted map
+            gameSession.getMap().loadLocations();
             Bukkit.broadcastMessage(BowBash.prefix + "§7Die Lobbyphase endet in §e" + currentTime + " §7Sekunden.");
-
-        } else if (currentTime == 4 || currentTime == 5 || currentTime == 15) {
-            Bukkit.broadcastMessage(BowBash.prefix + "§7Die Lobbyphase endet in §e" + currentTime + " §7Sekunden.");
-            for (Player current : Bukkit.getOnlinePlayers()) {
-                current.playSound(current.getLocation(), Sound.NOTE_PLING, 2, 1);
-            }
+            Bukkit.broadcastMessage(BowBash.prefix +
+                    "§7Informationen für diese §eRunde§7:\n" +
+                    "§7Map → §e" + gameSession.getMap().getMapName() + "\n" +
+                    "§7Gebaut von §e" + gameSession.getMap().getMapAuthor() + "\n" +
+                    "§7Statistiken → " + (StatsManager.isEnabled() ? "§aaktiviert" : "§cdeaktiviert"));
         }
     }
 

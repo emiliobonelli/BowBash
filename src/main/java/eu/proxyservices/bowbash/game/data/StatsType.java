@@ -5,8 +5,5 @@ public enum StatsType {
     DEATHS(),
     BLOCKS_PLACED(),
     SHOTS(),
-    WINS();
-
-    StatsType() {
-    }
+    WINS()
 }

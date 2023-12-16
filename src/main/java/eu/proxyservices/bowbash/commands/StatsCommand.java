@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class StatsCommand implements CommandExecutor {
 
@@ -23,41 +24,18 @@ public class StatsCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
-        if (sender instanceof Player) {
-            Player p = (Player) sender;
+        if (sender instanceof Player p) {
+            if (!StatsManager.isEnabled()) {
+                p.sendMessage(BowBash.prefix + "§cStatistiken können derzeit nicht abgerufen werden.");
+                return true;
+            }
             if (args.length == 0) {
                 Map<StatsType, Integer> stats = StatsManager.getStats(p.getUniqueId());
-                GamePlayer gp = gameSession.getGamePlayer(p);
-                if (gp != null) {
-                    p.sendMessage("§8]§8§m------------------§8[");
-                    p.sendMessage("§b" + p.getName() + "s Statistiken");
-                    p.sendMessage("§8]§8§m------------------§8[");
-                    p.sendMessage("§7Wins: §b" + stats.get(StatsType.WINS));
-                    p.sendMessage("§7Kills: §b" + stats.get(StatsType.KILLS));
-                    p.sendMessage("§7Deaths: §b" + stats.get(StatsType.DEATHS));
-                    p.sendMessage("§7Schüsse: §b" + stats.get(StatsType.SHOTS));
-                    p.sendMessage("§7Blöcke plaziert: §b" + stats.get(StatsType.BLOCKS_PLACED));
-                    p.sendMessage("§8]§8§m------------------§8[");
-                } else {
-                    p.sendMessage(BowBash.prefix + "§7Die Runde muss erst starten!");
-                }
+                sendStats(p, stats);
             } else if (args.length == 1) {
-                if (Bukkit.getPlayer(args[0]).isValid()) {
-                    Map<StatsType, Integer> stats = StatsManager.getStats(Bukkit.getPlayer(args[0]).getUniqueId());
-                    GamePlayer gp = gameSession.getGamePlayer(Bukkit.getPlayer(args[0]));
-                    if (gp != null) {
-                        p.sendMessage("§8]§8§m------------------§8[");
-                        p.sendMessage("§b" + p.getName() + "s Statistiken");
-                        p.sendMessage("§8]§8§m------------------§8[");
-                        p.sendMessage("§7Wins: §b" + stats.get(StatsType.WINS));
-                        p.sendMessage("§7Kills: §b" + stats.get(StatsType.KILLS));
-                        p.sendMessage("§7Deaths: §b" + stats.get(StatsType.DEATHS));
-                        p.sendMessage("§7Schüsse: §b" + stats.get(StatsType.SHOTS));
-                        p.sendMessage("§7Blöcke plaziert: §b" + stats.get(StatsType.BLOCKS_PLACED));
-                        p.sendMessage("§8]§8§m------------------§8[");
-                    } else {
-                        p.sendMessage(BowBash.prefix + "§7Dieser Spieler konnte nicht gefunden werden.");
-                    }
+                if (Objects.requireNonNull(Bukkit.getPlayer(args[0])).isValid()) {
+                    Map<StatsType, Integer> stats = StatsManager.getStats(Objects.requireNonNull(Bukkit.getPlayer(args[0])).getUniqueId());
+                    sendStats(p, stats);
                 } else {
                     p.sendMessage(BowBash.prefix + "§7Dieser Spieler konnte nicht gefunden werden.");
                 }
@@ -65,6 +43,18 @@ public class StatsCommand implements CommandExecutor {
                 p.sendMessage(BowBash.prefix + "§7Dieser Spieler konnte nicht gefunden werden.");
             }
         }
-        return false;
+        return true;
+    }
+
+    private void sendStats(Player p, Map<StatsType, Integer> stats) {
+        p.sendMessage("§8]§8§m------------------§8[");
+        p.sendMessage("§b" + p.getName() + "s Statistiken");
+        p.sendMessage("§8]§8§m------------------§8[");
+        p.sendMessage("§7Wins: §b" + stats.get(StatsType.WINS));
+        p.sendMessage("§7Kills: §b" + stats.get(StatsType.KILLS));
+        p.sendMessage("§7Deaths: §b" + stats.get(StatsType.DEATHS));
+        p.sendMessage("§7Schüsse: §b" + stats.get(StatsType.SHOTS));
+        p.sendMessage("§7Blöcke plaziert: §b" + stats.get(StatsType.BLOCKS_PLACED));
+        p.sendMessage("§8]§8§m------------------§8[");
     }
 }

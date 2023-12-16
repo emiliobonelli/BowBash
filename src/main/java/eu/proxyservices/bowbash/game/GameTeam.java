@@ -1,30 +1,35 @@
 package eu.proxyservices.bowbash.game;
 
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public enum GameTeam {
-    BLUE(11, "§9", "Blau"),
-    RED(14, "§c", "Rot"),
-    // GREEN(13, "§a", "Grün", 0),
-    // YELLOW(4, "§e", "Gelb", 0),
+    BLUE("§9", "Blau", Material.BLUE_STAINED_GLASS),
+    RED("§c", "Rot", Material.RED_STAINED_GLASS),
+    GREEN("§a", "Grün", Material.GREEN_STAINED_GLASS),
+    YELLOW("§e", "Gelb", Material.YELLOW_STAINED_GLASS),
     ;
-    private ArrayList<GamePlayer> gamePlayerList;
-    private final byte teamDurabId;
+    private final ArrayList<GamePlayer> gamePlayerList;
+    private final Material glassBlock;
     private final String colorCode;
     private final String name;
+    private Location spawnLocation;
     private int points;
 
-    GameTeam(int teamDurabId, String colorCode, String name) {
-        this.teamDurabId = (byte) teamDurabId;
+    GameTeam(String colorCode, String name, Material glassBlock) {
+        this.glassBlock = glassBlock;
         this.colorCode = colorCode;
         this.name = name;
         this.points = 0;
         gamePlayerList = new ArrayList<>();
     }
 
-    public byte getTeamDurabId() {
-        return teamDurabId;
+    public Material getGlassBlock() {
+        return glassBlock;
     }
 
     public List<GamePlayer> getGamePlayerList() {
@@ -45,6 +50,15 @@ public enum GameTeam {
 
     public void addPoint() {
         points++;
+    }
+    public void removePoint() {
+        points--;
+    }
+    public Location getSpawnLocation() {
+        return spawnLocation;
+    }
+    public void setSpawnLocation(Location spawnLocation) {
+        this.spawnLocation = spawnLocation;
     }
 
 }

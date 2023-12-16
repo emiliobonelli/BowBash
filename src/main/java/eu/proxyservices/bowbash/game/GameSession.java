@@ -1,6 +1,7 @@
 package eu.proxyservices.bowbash.game;
 
 import eu.proxyservices.bowbash.game.countdown.Countdown;
+import eu.proxyservices.bowbash.game.data.ConfigManager;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -32,8 +33,9 @@ public interface GameSession {
 
     void joinRandomTeam(GamePlayer gamePlayer);
 
-    void setMap(String map);
+    void setMap(GameMap map);
 
-    String getMap();
+    GameMap getMap();
+
 
 }

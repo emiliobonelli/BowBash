@@ -5,9 +5,7 @@ import eu.proxyservices.bowbash.game.DefaultGamePlayer;
 import eu.proxyservices.bowbash.game.GamePlayer;
 import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.GameState;
-import eu.proxyservices.bowbash.game.data.ConfigManager;
 import eu.proxyservices.bowbash.game.gamestates.lobby.LobbyManager;
-import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -51,7 +49,7 @@ public class PlayerConnectionListener implements Listener {
             }
         } else {
             e.getPlayer().setGameMode(GameMode.SPECTATOR);
-            e.getPlayer().teleport(ConfigManager.getSpecSpawn());
+            e.getPlayer().teleport(gameSession.getMap().spectatorSpawn);
         }
     }
 
@@ -64,7 +62,7 @@ public class PlayerConnectionListener implements Listener {
                 }
                 e.setQuitMessage(null);
                 Bukkit.broadcastMessage(BowBash.prefix + "§7Der Spieler " + e.getPlayer().getDisplayName() + "§7 hat den Server verlassen.");
-                if (Bukkit.getOnlinePlayers().size() == 0) {
+                if (Bukkit.getOnlinePlayers().isEmpty()) {
                     interrupt();
                 }
             }
@@ -76,12 +74,9 @@ public class PlayerConnectionListener implements Listener {
             if (gameSession.getGamePlayers().containsKey(e.getPlayer())) {
                 gameSession.removeGamePlayer(e.getPlayer());
                 Bukkit.broadcastMessage(BowBash.prefix + "§7Der Spieler " + e.getPlayer().getDisplayName() + "§7 hat den Server verlassen.");
-                //todo: print winner
                 if (Bukkit.getOnlinePlayers().size() <= 1) {
                     gameSession.setGameState(GameState.ENDING);
                 }
-            } else {
-                //todo: some spec stuff
             }
         } else if (gameSession.getCurrentGameState() == GameState.ENDING) {
             e.setQuitMessage(null);
@@ -103,10 +98,8 @@ public class PlayerConnectionListener implements Listener {
     }
 
     public void interrupt() {
-        Validate.notNull(bukkitTask);
         bukkitTask.cancel();
         bukkitTask = null;
     }
-
 
 }
