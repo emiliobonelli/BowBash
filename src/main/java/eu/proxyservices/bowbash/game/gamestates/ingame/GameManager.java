@@ -36,11 +36,11 @@ public class GameManager implements Listener {
     public static ArrayList<Location> mapchanges = new ArrayList<>();
     private static boolean endlessRound = false;
 
-    public static boolean isEndless() {
+    public boolean isEndless() {
         return endlessRound;
     }
 
-    public static void setEndless(Boolean endless) {
+    public void setEndless(Boolean endless) {
         endlessRound = endless;
     }
 
@@ -48,7 +48,7 @@ public class GameManager implements Listener {
         this.gameSession = gameSession;
     }
 
-    private static Scoreboard Scoreboard() {
+    private Scoreboard Scoreboard() {
         Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
         Objective obj = board.registerNewObjective("aaa", "bbb");
 
@@ -64,7 +64,7 @@ public class GameManager implements Listener {
         return board;
     }
 
-    public static void runScoreboard() {
+    public void runScoreboard() {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(BowBash.plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.setScoreboard(Scoreboard());

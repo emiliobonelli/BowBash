@@ -40,6 +40,44 @@ public class LobbyManager implements Listener {
         this.mapVoteManager = new MapVoteManager();
     }
 
+    public void prepare() {
+        mapVoteManager.countVotes();
+        gameSession.setMap(mapVoteManager.getCurrentMap());
+    }
+    public void joinGameTeam(GamePlayer gamePlayer, GameTeam targetGameTeam) {
+        if (targetGameTeam == gamePlayer.getGameTeam()) {
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDu bist bereits in diesem Team!");
+            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.BLOCK_ANVIL_BREAK, 2, 2);
+        } else if (targetGameTeam.getGamePlayerList().size() >= gameSession.getMaxPlayersPerTeam()) {
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDieses Team ist bereits voll!");
+        } else {
+            if (gamePlayer.getGameTeam() != null) {
+                gamePlayer.getGameTeam().getGamePlayerList().remove(gamePlayer);
+            }
+            gamePlayer.setGameTeam(targetGameTeam);
+            targetGameTeam.getGamePlayerList().add(gamePlayer);
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + targetGameTeam.getColorCode() + "Team " + targetGameTeam.getName());
+            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2, 2);
+        }
+    }
+
+    public void joinRandomTeam(GamePlayer gamePlayer) {
+        if (GameTeam.RED.getGamePlayerList().size() < gameSession.getMaxPlayersPerTeam()) {
+            GameTeam.RED.getGamePlayerList().add(gamePlayer);
+            gamePlayer.setGameTeam(GameTeam.RED);
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.RED.getColorCode() + "Team " + GameTeam.RED.getName());
+        } else if (GameTeam.BLUE.getGamePlayerList().size() < gameSession.getMaxPlayersPerTeam()) {
+            GameTeam.BLUE.getGamePlayerList().add(gamePlayer);
+            gamePlayer.setGameTeam(GameTeam.BLUE);
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.BLUE.getColorCode() + "Team " + GameTeam.BLUE.getName());
+            /**
+             } else if (GameTeam.GREEN.getGamePlayerList().size() < maxPlayersPerTeam) {
+             } else if (GameTeam.YELLOW.getPlayerList().size < maxPlayersPerTeam) {
+             */
+        } else {
+            Bukkit.getConsoleSender().sendMessage("Es konnte kein passendes Team gefunden werden.");
+        }
+    }
     public static void items(Player player) {
         player.getInventory().clear();
         ItemStack kit = new ItemStack(Material.CHEST);
@@ -100,8 +138,8 @@ public class LobbyManager implements Listener {
                 }
                 case ENDER_EYE -> {
                     e.getPlayer().getInventory().setItem(3, new ItemStack(ENDER_PEARL));
-                    if (GameManager.isEndless()) {
-                        GameManager.setEndless(false);
+                    if (gameSession.getGameManager().isEndless()) {
+                        gameSession.getGameManager().setEndless(false);
                         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
                         for (Player p1 : Bukkit.getOnlinePlayers()) {
                             p.sendMessage(BowBash.prefix + "§d∞-Modus: §cdeaktiviert");
@@ -111,8 +149,8 @@ public class LobbyManager implements Listener {
                 }
                 case ENDER_PEARL -> {
                     e.getPlayer().getInventory().setItem(3, new ItemStack(Material.ENDER_EYE));
-                    if (!GameManager.isEndless()) {
-                        GameManager.setEndless(true);
+                    if (!gameSession.getGameManager().isEndless()) {
+                        gameSession.getGameManager().setEndless(true);
                         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
                         for (Player p1 : Bukkit.getOnlinePlayers()) {
                             p.sendMessage(BowBash.prefix + "§d∞-Modus: §caktiviert");
@@ -134,25 +172,25 @@ public class LobbyManager implements Listener {
                 switch (e.getCurrentItem().getItemMeta().getDisplayName()) {
                     case "§9Team Blau" -> {
                         if (gameSession.getGamePlayer((Player) e.getWhoClicked()) != null) {
-                            gameSession.joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.BLUE);
+                            joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.BLUE);
                             e.getWhoClicked().closeInventory();
                         }
                     }
                     case "§cTeam Rot" -> {
                         if (gameSession.getGamePlayer((Player) e.getWhoClicked()) != null) {
-                            gameSession.joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.RED);
+                            joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.RED);
                             e.getWhoClicked().closeInventory();
                         }
                     }
                     case "§eTeam Gelb" -> {
                         if (gameSession.getGamePlayer((Player) e.getWhoClicked()) != null) {
-                            gameSession.joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.YELLOW);
+                            joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.YELLOW);
                             e.getWhoClicked().closeInventory();
                         }
                     }
                     case "§aTeam Grün" -> {
                         if (gameSession.getGamePlayer((Player) e.getWhoClicked()) != null) {
-                            gameSession.joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.GREEN);
+                            joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.GREEN);
                             e.getWhoClicked().closeInventory();
                         }
                     }

@@ -7,6 +7,7 @@ import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.GameState;
 import eu.proxyservices.bowbash.game.data.ConfigManager;
 import eu.proxyservices.bowbash.game.data.StatsManager;
+import eu.proxyservices.bowbash.game.gamestates.lobby.LobbyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -66,7 +67,7 @@ public class LobbyCountdown implements Countdown {
                     gameSession.addGamePlayer(current, gp);
                 }
                 if (gp.getGameTeam() == null) {
-                    gameSession.joinRandomTeam(gp);
+                    gameSession.getLobbyManager().joinRandomTeam(gp);
                 }
                 current.teleport(gp.getGameTeam().getSpawnLocation());
                 current.getInventory().clear();
@@ -94,8 +95,7 @@ public class LobbyCountdown implements Countdown {
                 current.getInventory().remove(Material.MAP);
                 current.closeInventory();
             }
-            // todo: close poll for map and load most voted map
-            gameSession.getMap().loadLocations();
+            gameSession.getLobbyManager().prepare();
             Bukkit.broadcastMessage(BowBash.prefix + "§7Die Lobbyphase endet in §e" + currentTime + " §7Sekunden.");
             Bukkit.broadcastMessage(BowBash.prefix +
                     "§7Informationen für diese §eRunde§7:\n" +

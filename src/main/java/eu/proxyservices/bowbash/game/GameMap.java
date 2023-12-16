@@ -1,10 +1,8 @@
 package eu.proxyservices.bowbash.game;
 
-import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.data.ConfigManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 

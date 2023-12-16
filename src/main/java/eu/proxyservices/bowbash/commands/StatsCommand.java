@@ -1,7 +1,6 @@
 package eu.proxyservices.bowbash.commands;
 
 import eu.proxyservices.bowbash.BowBash;
-import eu.proxyservices.bowbash.game.GamePlayer;
 import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.data.StatsManager;
 import eu.proxyservices.bowbash.game.data.StatsType;
@@ -16,10 +15,8 @@ import java.util.Objects;
 
 public class StatsCommand implements CommandExecutor {
 
-    private final GameSession gameSession;
 
     public StatsCommand(GameSession gameSession) {
-        this.gameSession = gameSession;
     }
 
     @Override

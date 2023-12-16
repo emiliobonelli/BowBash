@@ -1,6 +1,5 @@
 package eu.proxyservices.bowbash.game.data;
 
-import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.GameMap;
 import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.GameTeam;
@@ -18,14 +17,10 @@ import java.util.Objects;
 
 public class ConfigManager {
 
-    private static final HashMap<GameTeam, Location> map_loc_cache = new HashMap<>();
-
     private static YamlConfiguration loc_yml;
     private static YamlConfiguration cnf_yml;
     private static File loc_file;
     private static File cnf_file;
-    static GameSession gameSession;
-    static Location specspawn = null;
 
     public ConfigManager() {
         loc_file = new File("plugins/BowBash/locations.yml");

@@ -3,12 +3,11 @@ package eu.proxyservices.bowbash.game;
 import com.google.common.collect.Maps;
 import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.countdown.Countdown;
-import eu.proxyservices.bowbash.game.countdown.EndingCountdown;
 import eu.proxyservices.bowbash.game.countdown.IngameCountdown;
 import eu.proxyservices.bowbash.game.countdown.LobbyCountdown;
-import eu.proxyservices.bowbash.game.data.ConfigManager;
 import eu.proxyservices.bowbash.game.gamestates.ending.ResultManager;
 import eu.proxyservices.bowbash.game.gamestates.ingame.GameManager;
+import eu.proxyservices.bowbash.game.gamestates.lobby.LobbyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -18,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 public class DefaultGameSession implements GameSession {
+
+    private LobbyManager lobbyManager;
+    private GameManager gameManager;
     private final Map<Player, GamePlayer> gamePlayerMap = Maps.newConcurrentMap();
     private final ArrayList<GameTeam> gameTeams = new ArrayList<>();
     private final int maxPlayersPerTeam;
@@ -74,52 +76,26 @@ public class DefaultGameSession implements GameSession {
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
         if (gameState == GameState.LOBBY) {
+            this.lobbyManager = new LobbyManager(this);
             countdown = new LobbyCountdown(this);
         } else if (gameState == GameState.IN_GAME) {
             new IngameCountdown(this);
-            GameManager.runScoreboard();
+            this.gameManager = new GameManager(this);
+            gameManager.runScoreboard();
 
         } else if (gameState == GameState.ENDING) {
             new ResultManager(this);
         }
     }
 
-    // todo: move to LobbyManager
     @Override
-    public void joinGameTeam(GamePlayer gamePlayer, GameTeam targetGameTeam) {
-        if (targetGameTeam == gamePlayer.getGameTeam()) {
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDu bist bereits in diesem Team!");
-            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.BLOCK_ANVIL_BREAK, 2, 2);
-        } else if (targetGameTeam.getGamePlayerList().size() >= maxPlayersPerTeam) {
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDieses Team ist bereits voll!");
-        } else {
-            if (gamePlayer.getGameTeam() != null) {
-                gamePlayer.getGameTeam().getGamePlayerList().remove(gamePlayer);
-            }
-            gamePlayer.setGameTeam(targetGameTeam);
-            targetGameTeam.getGamePlayerList().add(gamePlayer);
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + targetGameTeam.getColorCode() + "Team " + targetGameTeam.getName());
-            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2, 2);
-        }
+    public LobbyManager getLobbyManager() {
+        return lobbyManager;
     }
 
     @Override
-    public void joinRandomTeam(GamePlayer gamePlayer) {
-        if (GameTeam.RED.getGamePlayerList().size() < maxPlayersPerTeam) {
-            GameTeam.RED.getGamePlayerList().add(gamePlayer);
-            gamePlayer.setGameTeam(GameTeam.RED);
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.RED.getColorCode() + "Team " + GameTeam.RED.getName());
-        } else if (GameTeam.BLUE.getGamePlayerList().size() < maxPlayersPerTeam) {
-            GameTeam.BLUE.getGamePlayerList().add(gamePlayer);
-            gamePlayer.setGameTeam(GameTeam.BLUE);
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.BLUE.getColorCode() + "Team " + GameTeam.BLUE.getName());
-            /**
-             } else if (GameTeam.GREEN.getGamePlayerList().size() < maxPlayersPerTeam) {
-             } else if (GameTeam.YELLOW.getPlayerList().size < maxPlayersPerTeam) {
-             */
-        } else {
-            Bukkit.getConsoleSender().sendMessage("Es konnte kein passendes Team gefunden werden.");
-        }
+    public GameManager getGameManager() {
+        return gameManager;
     }
 
     @Override

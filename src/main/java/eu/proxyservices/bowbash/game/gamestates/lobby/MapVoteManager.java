@@ -3,18 +3,18 @@ package eu.proxyservices.bowbash.game.gamestates.lobby;
 import eu.proxyservices.bowbash.game.GameMap;
 import eu.proxyservices.bowbash.game.data.ConfigManager;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MapVoteManager {
-    //todo: implement
 
-    private List<GameMap> gameMaps;
+    private final List<GameMap> gameMaps;
 
     private GameMap currentMap = null;
     private boolean pollActive = true;
 
     public MapVoteManager() {
+        gameMaps = new ArrayList<>();
         List<String> mapNames = ConfigManager.loadMaps();
         for (String mapName : mapNames) {
             gameMaps.add(ConfigManager.loadMap(mapName));

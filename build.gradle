@@ -7,7 +7,6 @@ plugins {
 
 group 'eu.proxyservices.bowbash'
 version '1.0-SNAPSHOT'
-mainClassName = 'eu.proxyservices.bowbash.Main'
 
 repositories {
     mavenCentral()
