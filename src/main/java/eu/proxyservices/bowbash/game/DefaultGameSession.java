@@ -81,7 +81,7 @@ public class DefaultGameSession implements GameSession {
             gameManager.runScoreboard();
 
         } else if (gameState == GameState.ENDING) {
-            new ResultManager(this);
+            new ResultManager();
         }
     }
 

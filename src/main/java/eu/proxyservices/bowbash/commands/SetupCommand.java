@@ -13,9 +13,7 @@ import java.util.Arrays;
 public class SetupCommand implements CommandExecutor {
 
     //todo: add setup command for description and author of map
-    public SetupCommand(GameSession gameSession) {
-        this.gameSession = gameSession;
-    }
+    public SetupCommand(GameSession gameSession) {}
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String s, String[] args) {
 

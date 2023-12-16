@@ -12,7 +12,7 @@ public class ResultManager {
     private final int minNeeded = 1;
     private final boolean endless = false;
 
-    public ResultManager(GameSession gameSession) {
+    public ResultManager() {
         if (endless) {
             return;
         }
