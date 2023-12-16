@@ -1,8 +1,6 @@
 package eu.proxyservices.bowbash.game.data;
 
 import eu.proxyservices.bowbash.game.GameMap;
-import eu.proxyservices.bowbash.game.GameSession;
-import eu.proxyservices.bowbash.game.GameTeam;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

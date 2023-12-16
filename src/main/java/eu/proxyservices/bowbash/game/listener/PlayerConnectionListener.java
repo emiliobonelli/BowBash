@@ -49,7 +49,7 @@ public class PlayerConnectionListener implements Listener {
             }
         } else {
             e.getPlayer().setGameMode(GameMode.SPECTATOR);
-            e.getPlayer().teleport(gameSession.getMap().spectatorSpawn);
+            e.getPlayer().teleport(gameSession.getMap().getSpectatorSpawn());
         }
     }
 

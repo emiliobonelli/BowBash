@@ -1,15 +1,12 @@
 package eu.proxyservices.bowbash.game;
 
 import com.google.common.collect.Maps;
-import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.countdown.Countdown;
 import eu.proxyservices.bowbash.game.countdown.IngameCountdown;
 import eu.proxyservices.bowbash.game.countdown.LobbyCountdown;
 import eu.proxyservices.bowbash.game.gamestates.ending.ResultManager;
 import eu.proxyservices.bowbash.game.gamestates.ingame.GameManager;
 import eu.proxyservices.bowbash.game.gamestates.lobby.LobbyManager;
-import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;

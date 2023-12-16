@@ -14,7 +14,7 @@ public class GameMap {
 
     private final Material mapItem;
     private int votes;
-    public Location spectatorSpawn;
+    private Location spectatorSpawn;
 
     public GameMap(String mapName, String mapAuthor, int maxTeams, Material forItem) {
         this.mapName = mapName;

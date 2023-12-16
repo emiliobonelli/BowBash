@@ -3,7 +3,6 @@ package eu.proxyservices.bowbash.game.gamestates.lobby;
 import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.*;
 import eu.proxyservices.bowbash.game.gamestates.ingame.GameKit;
-import eu.proxyservices.bowbash.game.gamestates.ingame.GameManager;
 import eu.proxyservices.bowbash.game.gamestates.ingame.KitManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -142,8 +141,8 @@ public class LobbyManager implements Listener {
                         gameSession.getGameManager().setEndless(false);
                         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
                         for (Player p1 : Bukkit.getOnlinePlayers()) {
-                            p.sendMessage(BowBash.prefix + "§d∞-Modus: §cdeaktiviert");
-                            p.sendMessage(BowBash.prefix + "§cDie Runde endet nun, nachdem ein Team durch Punkte gewonnen hat.");
+                            p1.sendMessage(BowBash.prefix + "§d∞-Modus: §cdeaktiviert");
+                            p1.sendMessage(BowBash.prefix + "§cDie Runde endet nun, nachdem ein Team durch Punkte gewonnen hat.");
                         }
                     }
                 }
@@ -153,8 +152,8 @@ public class LobbyManager implements Listener {
                         gameSession.getGameManager().setEndless(true);
                         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
                         for (Player p1 : Bukkit.getOnlinePlayers()) {
-                            p.sendMessage(BowBash.prefix + "§d∞-Modus: §caktiviert");
-                            p.sendMessage(BowBash.prefix + "§cDie Runde hat ab sofort kein festes Ende und endet erst, nachdem nur noch ein Team übrig ist.");
+                            p1.sendMessage(BowBash.prefix + "§d∞-Modus: §caktiviert");
+                            p1.sendMessage(BowBash.prefix + "§cDie Runde hat ab sofort kein festes Ende und endet erst, nachdem nur noch ein Team übrig ist.");
                         }
                     }
                 }

@@ -8,13 +8,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.io.ObjectInputFilter;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SetupCommand implements CommandExecutor {
 
-    private final GameSession gameSession;
+    //todo: add setup command for description and author of map
     public SetupCommand(GameSession gameSession) {
         this.gameSession = gameSession;
     }

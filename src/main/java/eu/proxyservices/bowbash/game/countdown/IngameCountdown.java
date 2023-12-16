@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 public class IngameCountdown implements Countdown, Listener {
 
-    private final int taskId = -1;
+    private int taskId = -1;
     private int currentTime = 5;
     private final GameSession gameSession;
 
@@ -24,7 +24,7 @@ public class IngameCountdown implements Countdown, Listener {
 
     @Override
     public void start() {
-        int task = Bukkit.getScheduler().scheduleSyncRepeatingTask(BowBash.plugin, this, 0L, 20L);
+        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(BowBash.plugin, this, 0L, 20L);
     }
 
     @Override

@@ -4,7 +4,6 @@ import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.GameState;
 import eu.proxyservices.bowbash.game.GameTeam;
-import eu.proxyservices.bowbash.game.data.ConfigManager;
 import eu.proxyservices.bowbash.game.data.StatsManager;
 import eu.proxyservices.bowbash.game.data.StatsType;
 import org.bukkit.*;

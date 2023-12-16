@@ -9,12 +9,13 @@ import org.bukkit.entity.Player;
 
 public class ResultManager {
 
-    private final GameSession gameSession;
     private final int minNeeded = 1;
     private final boolean endless = false;
 
     public ResultManager(GameSession gameSession) {
-        this.gameSession = gameSession;
+        if (endless) {
+            return;
+        }
         getResult();
     }
 

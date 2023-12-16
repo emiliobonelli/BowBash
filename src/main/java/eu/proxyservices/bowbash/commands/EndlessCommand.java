@@ -2,7 +2,6 @@ package eu.proxyservices.bowbash.commands;
 
 import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.GameSession;
-import eu.proxyservices.bowbash.game.gamestates.ingame.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;

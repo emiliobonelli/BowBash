@@ -113,12 +113,10 @@ public class KitManager implements Listener {
     }
 
     public static void gameItems(Player player) {
-
         switch (gameSession.getGamePlayer(player).getGameKit()) {
             case Standard -> StandardKit(player);
-            case Rescuer -> {
-                giveRescueKit(player);
-            }
+            case Rescuer -> giveRescueKit(player);
+            case Tank -> giveTankKit(player);
         }
     }
 
