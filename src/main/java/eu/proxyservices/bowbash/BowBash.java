@@ -19,45 +19,40 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class BowBash extends JavaPlugin {
 
     public GameSession gameSession = null;
 
-    public static String prefix = "§7[§bBowBash§7] ";
+    public static String prefix;
     public static Plugin plugin;
-    public final static int amountTeams = 2;
-    public final static int maxPlayersPerTeam = 1;
+    public static int amountTeams;
+    public static int maxPlayersPerTeam;
 
-
-    @Override
-    public void onLoad() {
-        final List<GameTeam> teams = new ArrayList<>(Arrays.asList(GameTeam.values()).subList(0, amountTeams));
-        gameSession = new DefaultGameSession(teams, maxPlayersPerTeam);
-
-    }
 
     @Override
     public void onEnable() {
         plugin = this;
-        gameSession.setMap(new GameMap("Standard", "ProxyUser", amountTeams, Material.BOW));
+        ConfigManager.loadConfigs();
+        Map<String, String> gameSettings = ConfigManager.loadGameSettings();
+        amountTeams = Integer.parseInt(gameSettings.get("amountTeams"));
+        maxPlayersPerTeam = Integer.parseInt(gameSettings.get("maxPlayersPerTeam"));
+        prefix = gameSettings.get("prefix");
+
+        gameSession = new DefaultGameSession(Arrays.asList(GameTeam.values()).subList(0, amountTeams), maxPlayersPerTeam, gameSettings.get("endless").equalsIgnoreCase("true"));
         gameSession.setGameState(GameState.LOBBY);
+
         final PluginManager pm = getServer().getPluginManager();
-        new ConfigManager();
-        new StatsManager();
         pm.registerEvents(new PlayerConnectionListener(gameSession), this);
         pm.registerEvents(new GameDesignListener(gameSession), this);
-        pm.registerEvents(new GameManager(gameSession), this);
         pm.registerEvents(new KitManager(gameSession), this);
-        pm.registerEvents(new LobbyManager(gameSession), this);
         getCommand("setup").setExecutor(new SetupCommand(gameSession));
         getCommand("savestats").setExecutor(new NoStatsCommand(gameSession));
         getCommand("stats").setExecutor(new StatsCommand(gameSession));
         getCommand("endless").setExecutor(new EndlessCommand(gameSession));
-        Bukkit.getConsoleSender().sendMessage("§eLoaded!");
+
+        Bukkit.getConsoleSender().sendMessage(BowBash.prefix + "§aSuccessfully enabled BowBash!");
     }
 
     @Override

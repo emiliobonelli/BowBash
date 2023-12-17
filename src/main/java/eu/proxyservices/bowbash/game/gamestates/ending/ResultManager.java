@@ -1,7 +1,6 @@
 package eu.proxyservices.bowbash.game.gamestates.ending;
 
 import eu.proxyservices.bowbash.BowBash;
-import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.GameTeam;
 import eu.proxyservices.bowbash.game.countdown.EndingCountdown;
 import org.bukkit.Bukkit;

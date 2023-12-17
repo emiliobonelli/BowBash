@@ -1,9 +1,11 @@
 package eu.proxyservices.bowbash.game;
 
 import com.google.common.collect.Maps;
+import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.countdown.Countdown;
 import eu.proxyservices.bowbash.game.countdown.IngameCountdown;
 import eu.proxyservices.bowbash.game.countdown.LobbyCountdown;
+import eu.proxyservices.bowbash.game.data.StatsManager;
 import eu.proxyservices.bowbash.game.gamestates.ending.ResultManager;
 import eu.proxyservices.bowbash.game.gamestates.ingame.GameManager;
 import eu.proxyservices.bowbash.game.gamestates.lobby.LobbyManager;
@@ -15,8 +17,8 @@ import java.util.Map;
 
 public class DefaultGameSession implements GameSession {
 
-    private LobbyManager lobbyManager;
-    private GameManager gameManager;
+    private final LobbyManager lobbyManager;
+    private final GameManager gameManager;
     private final Map<Player, GamePlayer> gamePlayerMap = Maps.newConcurrentMap();
     private final ArrayList<GameTeam> gameTeams = new ArrayList<>();
     private final int maxPlayersPerTeam;
@@ -25,9 +27,17 @@ public class DefaultGameSession implements GameSession {
     private Countdown countdown;
     private GameMap map;
 
-    public DefaultGameSession(List<GameTeam> teams, int maxPlayersPerTeam) {
+    public DefaultGameSession(List<GameTeam> teams, int maxPlayersPerTeam, boolean endless) {
         gameTeams.addAll(teams);
         this.maxPlayersPerTeam = maxPlayersPerTeam;
+
+        this.lobbyManager = new LobbyManager(this);
+        this.gameManager = new GameManager(this);
+        gameManager.setEndless(endless);
+
+        BowBash.plugin.getServer().getConsoleSender().sendMessage("§7[§eGameSession§7] §7Current selected mode: §b" +
+                getGameTeams().size() + "x" + getMaxPlayersPerTeam() + " (" + (gameManager.isEndless() ? "Endless/" : "10-Points/") +
+                (StatsManager.isEnabled() ? "Ranked" : "Unranked") + ")");
     }
 
     public GameState getCurrentGameState() {
@@ -73,11 +83,9 @@ public class DefaultGameSession implements GameSession {
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
         if (gameState == GameState.LOBBY) {
-            this.lobbyManager = new LobbyManager(this);
             countdown = new LobbyCountdown(this);
         } else if (gameState == GameState.IN_GAME) {
             new IngameCountdown(this);
-            this.gameManager = new GameManager(this);
             gameManager.runScoreboard();
 
         } else if (gameState == GameState.ENDING) {

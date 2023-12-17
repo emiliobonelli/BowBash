@@ -1,6 +1,7 @@
 package eu.proxyservices.bowbash.game.gamestates.ingame;
 
 import eu.proxyservices.bowbash.BowBash;
+import eu.proxyservices.bowbash.game.GamePlayer;
 import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.GameState;
 import eu.proxyservices.bowbash.game.GameTeam;
@@ -44,7 +45,47 @@ public class GameManager implements Listener {
     }
 
     public GameManager(GameSession gameSession) {
+        BowBash.plugin.getServer().getPluginManager().registerEvents(this, BowBash.plugin);
         this.gameSession = gameSession;
+    }
+
+    public void joinGameTeam(GamePlayer gamePlayer, GameTeam targetGameTeam) {
+        if (targetGameTeam == gamePlayer.getGameTeam()) {
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDu bist bereits in diesem Team!");
+            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.BLOCK_ANVIL_BREAK, 2, 2);
+        } else if (targetGameTeam.getGamePlayerList().size() >= gameSession.getMaxPlayersPerTeam()) {
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDieses Team ist bereits voll!");
+        } else {
+            if (gamePlayer.getGameTeam() != null) {
+                gamePlayer.getGameTeam().getGamePlayerList().remove(gamePlayer);
+            }
+            gamePlayer.setGameTeam(targetGameTeam);
+            targetGameTeam.getGamePlayerList().add(gamePlayer);
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + targetGameTeam.getColorCode() + "Team " + targetGameTeam.getName());
+            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2, 2);
+        }
+    }
+
+    public void joinRandomTeam(GamePlayer gamePlayer) {
+        if (GameTeam.RED.getGamePlayerList().size() < gameSession.getMaxPlayersPerTeam()) {
+            GameTeam.RED.getGamePlayerList().add(gamePlayer);
+            gamePlayer.setGameTeam(GameTeam.RED);
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.RED.getColorCode() + "Team " + GameTeam.RED.getName());
+        } else if (GameTeam.BLUE.getGamePlayerList().size() < gameSession.getMaxPlayersPerTeam()) {
+            GameTeam.BLUE.getGamePlayerList().add(gamePlayer);
+            gamePlayer.setGameTeam(GameTeam.BLUE);
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.BLUE.getColorCode() + "Team " + GameTeam.BLUE.getName());
+        } else if (GameTeam.GREEN.getGamePlayerList().size() < gameSession.getMaxPlayersPerTeam()) {
+            GameTeam.GREEN.getGamePlayerList().add(gamePlayer);
+            gamePlayer.setGameTeam(GameTeam.GREEN);
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.GREEN.getColorCode() + "Team " + GameTeam.GREEN.getName());
+        } else if (GameTeam.YELLOW.getGamePlayerList().size() < gameSession.getMaxPlayersPerTeam()) {
+            GameTeam.YELLOW.getGamePlayerList().add(gamePlayer);
+            gamePlayer.setGameTeam(GameTeam.YELLOW);
+            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.YELLOW.getColorCode() + "Team " + GameTeam.YELLOW.getName());
+        } else {
+            Bukkit.getConsoleSender().sendMessage("Es konnte kein passendes Team gefunden werden.");
+        }
     }
 
     private Scoreboard Scoreboard() {

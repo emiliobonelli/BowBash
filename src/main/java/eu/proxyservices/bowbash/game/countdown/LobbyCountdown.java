@@ -65,7 +65,7 @@ public class LobbyCountdown implements Countdown {
                     gameSession.addGamePlayer(current, gp);
                 }
                 if (gp.getGameTeam() == null) {
-                    gameSession.getLobbyManager().joinRandomTeam(gp);
+                    gameSession.getGameManager().joinRandomTeam(gp);
                 }
                 current.teleport(gp.getGameTeam().getSpawnLocation());
                 current.getInventory().clear();

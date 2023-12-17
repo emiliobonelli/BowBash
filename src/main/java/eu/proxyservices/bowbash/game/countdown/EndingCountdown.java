@@ -1,7 +1,6 @@
 package eu.proxyservices.bowbash.game.countdown;
 
 import eu.proxyservices.bowbash.BowBash;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;

@@ -19,27 +19,23 @@ public class StatsManager {
     private static boolean isConnected;
     private static boolean isEnabled = true;
 
-    public StatsManager() {
-        connect(ConfigManager.loadDatabaseSettings());
-    }
-
-    public static void connect(HashMap<String, String> settings) {
+    static  {
+        HashMap<String, String> settings = ConfigManager.loadDatabaseSettings();
         try {
-        String url = "mongodb+srv://" + settings.get("username") + ":" + settings.get("password") + "@" + settings.get("url") + "/?retryWrites=true&w=majority";
-        StatsManager.mongoClient = MongoClients.create(url);
-        StatsManager.coll = mongoClient.getDatabase(settings.get("database")).getCollection(settings.get("collection"));
+            String url = "mongodb+srv://" + settings.get("username") + ":" + settings.get("password") + "@" + settings.get("url") + "/?retryWrites=true&w=majority";
+            StatsManager.mongoClient = MongoClients.create(url);
+            StatsManager.coll = mongoClient.getDatabase(settings.get("database")).getCollection(settings.get("collection"));
         } catch (Exception e) {
-            Bukkit.getConsoleSender().sendMessage("§7[DATABASE] §cCould not connect to database!");
-            disableStats();
+            mongoClient = null;
         }
 
         if (mongoClient != null) {
             isConnected = true;
-            Bukkit.getConsoleSender().sendMessage("§7[DATABASE] §aConnected to database!");
+            Bukkit.getConsoleSender().sendMessage("§7[§eStats§7] §aConnected to database!");
         } else {
-            isConnected = false;
-            Bukkit.getConsoleSender().sendMessage("§7[DATABASE] §cCould not connect to database!");
             disableStats();
+            Bukkit.getConsoleSender().sendMessage("§7[§eStats§7] §cCould not connect to database!");
+            Bukkit.getConsoleSender().sendMessage("§7[§eStats§7] §cStats are disabled for this session!");
         }
     }
 

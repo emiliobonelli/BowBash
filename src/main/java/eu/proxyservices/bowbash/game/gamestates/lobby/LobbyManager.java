@@ -29,54 +29,22 @@ import java.util.List;
 import static org.bukkit.Material.ENDER_PEARL;
 
 public class LobbyManager implements Listener {
-
+    //todo: split into multiple classes
     private final GameSession gameSession;
 
     private final MapVoteManager mapVoteManager;
 
     public LobbyManager(GameSession gameSession) {
+        BowBash.plugin.getServer().getPluginManager().registerEvents(this, BowBash.plugin);
         this.gameSession = gameSession;
-        this.mapVoteManager = new MapVoteManager();
+        this.mapVoteManager = new MapVoteManager(gameSession);
     }
 
     public void prepare() {
         mapVoteManager.countVotes();
-        gameSession.setMap(mapVoteManager.getCurrentMap());
-    }
-    public void joinGameTeam(GamePlayer gamePlayer, GameTeam targetGameTeam) {
-        if (targetGameTeam == gamePlayer.getGameTeam()) {
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDu bist bereits in diesem Team!");
-            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.BLOCK_ANVIL_BREAK, 2, 2);
-        } else if (targetGameTeam.getGamePlayerList().size() >= gameSession.getMaxPlayersPerTeam()) {
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§cDieses Team ist bereits voll!");
-        } else {
-            if (gamePlayer.getGameTeam() != null) {
-                gamePlayer.getGameTeam().getGamePlayerList().remove(gamePlayer);
-            }
-            gamePlayer.setGameTeam(targetGameTeam);
-            targetGameTeam.getGamePlayerList().add(gamePlayer);
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + targetGameTeam.getColorCode() + "Team " + targetGameTeam.getName());
-            gamePlayer.getPlayer().playSound(gamePlayer.getPlayer().getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2, 2);
-        }
+        mapVoteManager.getCurrentMap().loadLocations();
     }
 
-    public void joinRandomTeam(GamePlayer gamePlayer) {
-        if (GameTeam.RED.getGamePlayerList().size() < gameSession.getMaxPlayersPerTeam()) {
-            GameTeam.RED.getGamePlayerList().add(gamePlayer);
-            gamePlayer.setGameTeam(GameTeam.RED);
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.RED.getColorCode() + "Team " + GameTeam.RED.getName());
-        } else if (GameTeam.BLUE.getGamePlayerList().size() < gameSession.getMaxPlayersPerTeam()) {
-            GameTeam.BLUE.getGamePlayerList().add(gamePlayer);
-            gamePlayer.setGameTeam(GameTeam.BLUE);
-            gamePlayer.getPlayer().sendMessage(BowBash.prefix + "§7Du bist nun in " + GameTeam.BLUE.getColorCode() + "Team " + GameTeam.BLUE.getName());
-            /**
-             } else if (GameTeam.GREEN.getGamePlayerList().size() < maxPlayersPerTeam) {
-             } else if (GameTeam.YELLOW.getPlayerList().size < maxPlayersPerTeam) {
-             */
-        } else {
-            Bukkit.getConsoleSender().sendMessage("Es konnte kein passendes Team gefunden werden.");
-        }
-    }
     public static void items(Player player) {
         player.getInventory().clear();
         ItemStack kit = new ItemStack(Material.CHEST);
@@ -171,25 +139,25 @@ public class LobbyManager implements Listener {
                 switch (e.getCurrentItem().getItemMeta().getDisplayName()) {
                     case "§9Team Blau" -> {
                         if (gameSession.getGamePlayer((Player) e.getWhoClicked()) != null) {
-                            joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.BLUE);
+                            gameSession.getGameManager().joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.BLUE);
                             e.getWhoClicked().closeInventory();
                         }
                     }
                     case "§cTeam Rot" -> {
                         if (gameSession.getGamePlayer((Player) e.getWhoClicked()) != null) {
-                            joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.RED);
+                            gameSession.getGameManager().joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.RED);
                             e.getWhoClicked().closeInventory();
                         }
                     }
                     case "§eTeam Gelb" -> {
                         if (gameSession.getGamePlayer((Player) e.getWhoClicked()) != null) {
-                            joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.YELLOW);
+                            gameSession.getGameManager().joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.YELLOW);
                             e.getWhoClicked().closeInventory();
                         }
                     }
                     case "§aTeam Grün" -> {
                         if (gameSession.getGamePlayer((Player) e.getWhoClicked()) != null) {
-                            joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.GREEN);
+                            gameSession.getGameManager().joinGameTeam(gameSession.getGamePlayer((Player) e.getWhoClicked()), GameTeam.GREEN);
                             e.getWhoClicked().closeInventory();
                         }
                     }

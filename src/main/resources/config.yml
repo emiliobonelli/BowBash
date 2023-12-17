@@ -1,6 +1,0 @@
-MongoDB:
-    username: bowbash
-    password: totallysafepassword
-    url: host.com
-    database: mingames
-    collection: bowbash

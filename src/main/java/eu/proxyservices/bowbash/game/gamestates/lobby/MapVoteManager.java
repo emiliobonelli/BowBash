@@ -1,6 +1,8 @@
 package eu.proxyservices.bowbash.game.gamestates.lobby;
 
+import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.GameMap;
+import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.data.ConfigManager;
 
 import java.util.ArrayList;
@@ -8,12 +10,15 @@ import java.util.List;
 
 public class MapVoteManager {
 
+    private final GameSession gameSession;
     private final List<GameMap> gameMaps;
 
     private GameMap currentMap = null;
     private boolean pollActive = true;
 
-    public MapVoteManager() {
+    public MapVoteManager(GameSession gameSession) {
+        this.gameSession = gameSession;
+
         gameMaps = new ArrayList<>();
         List<String> mapNames = ConfigManager.loadMaps();
         for (String mapName : mapNames) {
@@ -21,6 +26,8 @@ public class MapVoteManager {
         }
 
         currentMap = randomMap();
+        BowBash.plugin.getServer().getConsoleSender().sendMessage("§7[§eMapVoteManager§7] §aLoaded " + gameMaps.size() + " maps!");
+        BowBash.plugin.getServer().getConsoleSender().sendMessage("§7[§eMapVoteManager§7] §7Current selected map: " + currentMap.getMapName());
     }
 
     public List<GameMap> getGameMaps() {
@@ -57,6 +64,11 @@ public class MapVoteManager {
             }
         }
         return null;
+    }
+
+    private void setCurrentMap(GameMap gameMap) {
+        this.currentMap = gameMap;
+        gameSession.setMap(gameMap);
     }
     public GameMap getCurrentMap() {
         return currentMap;
