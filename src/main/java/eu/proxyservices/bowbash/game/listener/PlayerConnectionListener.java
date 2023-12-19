@@ -31,7 +31,9 @@ public class PlayerConnectionListener implements Listener {
         if (gameSession.getCurrentGameState() == GameState.LOBBY) {
             GamePlayer gp = new DefaultGamePlayer(gameSession, e.getPlayer());
             gameSession.addGamePlayer(e.getPlayer(), gp);
-            LobbyManager.items(e.getPlayer());
+            gameSession.getLobbyManager().items(e.getPlayer());
+            e.getPlayer().setGameMode(GameMode.ADVENTURE);
+            e.getPlayer().setGlowing(true);
             e.getPlayer().setLevel(gameSession.getCountdown().time());
             e.getPlayer().teleport(Bukkit.getServer().getWorld("world").getSpawnLocation());
             Bukkit.broadcastMessage(BowBash.prefix + "§b" + e.getPlayer().getDisplayName() + " §7hat die Lobby betreten.");
@@ -46,6 +48,13 @@ public class PlayerConnectionListener implements Listener {
                 }
             } else if (gameSession.getCountdown().isRunning() && Bukkit.getOnlinePlayers().size() == gameSession.getGameTeams().size() * gameSession.getMaxPlayersPerTeam()) {
                 e.getPlayer().kickPlayer("§cDie Runde ist voll! Bitte betrete eine andere Runde.");
+            }
+        } else if (gameSession.getCurrentGameState() == GameState.SETUP) {
+            if (e.getPlayer().hasPermission("bb.build") || e.getPlayer().isOp()) {
+                e.getPlayer().setGameMode(GameMode.CREATIVE);
+                e.getPlayer().sendMessage(BowBash.prefix + "§7Dieser Server ist im Setup-Modus.");
+            } else {
+                e.getPlayer().kickPlayer("§cDiesem Server kann aktuell nicht beigetreten werden.");
             }
         } else {
             e.getPlayer().setGameMode(GameMode.SPECTATOR);
@@ -88,6 +97,10 @@ public class PlayerConnectionListener implements Listener {
         bukkitTask = Bukkit.getScheduler().runTaskTimerAsynchronously(BowBash.plugin, (Runnable) new BukkitRunnable() {
             @Override
             public void run() {
+                if (gameSession.getCurrentGameState() != GameState.LOBBY) {
+                    interrupt();
+                    return;
+                }
                 if (gameSession.getGameTeams().size() * gameSession.getMaxPlayersPerTeam() - Bukkit.getOnlinePlayers().size() == 1) {
                     Bukkit.broadcastMessage(BowBash.prefix + "§cWarten auf einen weiteren Spieler...");
                 } else {
@@ -98,6 +111,9 @@ public class PlayerConnectionListener implements Listener {
     }
 
     public void interrupt() {
+        if (bukkitTask == null) {
+            return;
+        }
         bukkitTask.cancel();
         bukkitTask = null;
     }

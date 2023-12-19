@@ -4,6 +4,8 @@ import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.GameMap;
 import eu.proxyservices.bowbash.game.GameSession;
 import eu.proxyservices.bowbash.game.data.ConfigManager;
+import eu.proxyservices.bowbash.utils.VoidGenerator;
+import org.bukkit.WorldCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +24,14 @@ public class MapVoteManager {
         gameMaps = new ArrayList<>();
         List<String> mapNames = ConfigManager.loadMaps();
         for (String mapName : mapNames) {
-            gameMaps.add(ConfigManager.loadMap(mapName));
-        }
+            GameMap gameMap = ConfigManager.loadMap(mapName);
+            gameMaps.add(gameMap);
+            // todo: more efficient way to load worlds?
+            gameMap.loadLocations();
 
-        currentMap = randomMap();
+        }
+        setCurrentMap(randomMap());
+
         BowBash.plugin.getServer().getConsoleSender().sendMessage("§7[§eMapVoteManager§7] §aLoaded " + gameMaps.size() + " maps!");
         BowBash.plugin.getServer().getConsoleSender().sendMessage("§7[§eMapVoteManager§7] §7Current selected map: " + currentMap.getMapName());
     }
@@ -72,5 +78,14 @@ public class MapVoteManager {
     }
     public GameMap getCurrentMap() {
         return currentMap;
+    }
+
+    public GameMap getGameMapByName(String name) {
+        for (GameMap gameMap : gameMaps) {
+            if (gameMap.getMapName().equalsIgnoreCase(name)) {
+                return gameMap;
+            }
+        }
+        return null;
     }
 }

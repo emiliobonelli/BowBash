@@ -9,11 +9,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.time.Instant;
 
 public class IngameCountdown implements Countdown, Listener {
 
-    private int taskId = -1;
-    private int currentTime = 5;
+    private BukkitTask bukkitTask;
+    private int currentTime = 7;
     private final GameSession gameSession;
 
     public IngameCountdown(GameSession gameSession) {
@@ -24,30 +27,32 @@ public class IngameCountdown implements Countdown, Listener {
 
     @Override
     public void start() {
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(BowBash.plugin, this, 0L, 20L);
+        bukkitTask = Bukkit.getScheduler().runTaskTimer(BowBash.plugin, this, 0L, 20L);
     }
 
     @Override
     public void interrupt() {
-        if (isRunning()) {
-            Bukkit.getScheduler().cancelTask(taskId);
+        if (bukkitTask == null) {
+            return;
         }
+        bukkitTask.cancel();
+        bukkitTask = null;
     }
 
     @Override
     public void run() {
         currentTime--;
         if (currentTime == 0) {
+            gameSession.setStartTime(Instant.now());
             interrupt();
+            Bukkit.broadcastMessage(BowBash.prefix + "§aDas Spiel startet!");
             for (Player current : Bukkit.getOnlinePlayers()) {
                 current.playSound(current.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 2);
-                current.sendMessage(BowBash.prefix + "§aDas Spiel startet!");
-                KitManager.gameItems(current);
             }
-        } else {
+        } else if (currentTime >= 1 && currentTime <= 5) {
+            Bukkit.broadcastMessage(BowBash.prefix + "§7Das Spiel startet in " + currentTime + "...");
             for (Player current : Bukkit.getOnlinePlayers()) {
                 current.playSound(current.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1, 1);
-                current.sendMessage(BowBash.prefix + "§7Das Spiel startet in " + currentTime + "...");
             }
         }
     }
@@ -55,12 +60,14 @@ public class IngameCountdown implements Countdown, Listener {
     @EventHandler
     public void move1(PlayerMoveEvent e) {
         if (isRunning() &&  gameSession.getGamePlayer(e.getPlayer()) != null) {
-            e.setCancelled(true);
+            if (e.getFrom().getX() != e.getTo().getX() || e.getFrom().getZ() != e.getTo().getZ()) {
+                e.setCancelled(true);
+            }
         }
     }
 
     public boolean isRunning() {
-        return Bukkit.getScheduler().isCurrentlyRunning(taskId);
+        return bukkitTask != null;
     }
 
     public int time() {

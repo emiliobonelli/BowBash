@@ -106,7 +106,7 @@ public class KitManager implements Listener {
 
         for (Location loc : locs) {
             if (loc.getBlock().getType() == Material.AIR) {
-                loc.getBlock().setType(gameSession.getGamePlayer(player).getGameTeam().getGlassBlock());
+                loc.getBlock().setType(gameSession.getGamePlayer(player).getGameTeam().getTeamBlock());
                 GameManager.mapchanges.add(loc.getBlock().getLocation());
             }
         }
@@ -130,9 +130,13 @@ public class KitManager implements Listener {
         im.setUnbreakable(true);
         bow.setItemMeta(im);
         player.getInventory().setItem(0, bow);
-        player.getInventory().setItem(2, new ItemStack(gameSession.getGamePlayer(player).getGameTeam().getGlassBlock(), 16));
+        player.getInventory().setItem(2, new ItemStack(gameSession.getGamePlayer(player).getGameTeam().getTeamBlock(), 16));
         player.getInventory().setItem(9, new ItemStack(Material.ARROW));
-        player.getInventory().setArmorContents(createArmor());
+        player.getInventory().setHelmet(new ItemStack(Material.IRON_HELMET));
+        player.getInventory().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+        player.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+        player.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS));
+
     }
     private static ItemStack[] createArmor() {
         ItemStack[] armor = new ItemStack[4];
@@ -154,9 +158,13 @@ public class KitManager implements Listener {
         im.setUnbreakable(true);
         bow.setItemMeta(im);
         player.getInventory().setItem(0, bow);
-        player.getInventory().setItem(2, new ItemStack(gameSession.getGamePlayer(player).getGameTeam().getGlassBlock(), 16));
+        player.getInventory().setItem(2, new ItemStack(gameSession.getGamePlayer(player).getGameTeam().getTeamBlock(), 16));
         player.getInventory().setItem(9, new ItemStack(Material.ARROW));
-        player.getInventory().setArmorContents(createArmor());
+        player.getInventory().setHelmet(new ItemStack(Material.IRON_HELMET));
+        player.getInventory().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+        player.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
+        player.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS));
+
         if (!cooldown.contains(player)) {
             ItemStack rescue = new ItemStack(Material.BLAZE_ROD, 1);
             ItemMeta rm = rescue.getItemMeta();
@@ -196,17 +204,17 @@ public class KitManager implements Listener {
         im.setUnbreakable(true);
         bow.setItemMeta(im);
         player.getInventory().setItem(0, bow);
-        player.getInventory().setItem(2, new ItemStack(gameSession.getGamePlayer(player).getGameTeam().getGlassBlock(), 32));
+        player.getInventory().setItem(2, new ItemStack(gameSession.getGamePlayer(player).getGameTeam().getTeamBlock(), 32));
         player.getInventory().setItem(9, new ItemStack(Material.ARROW));
         player.getInventory().setArmorContents(createCustomArmor());
     }
 
     public static ItemStack[] createCustomArmor() {
         ItemStack[] armor = new ItemStack[4];
-        armor[0] = createCustomItem(Material.NETHERITE_HELMET, EquipmentSlot.HEAD);
-        armor[1] = createCustomItem(Material.NETHERITE_CHESTPLATE, EquipmentSlot.CHEST);
-        armor[2] = createCustomItem(Material.NETHERITE_LEGGINGS, EquipmentSlot.LEGS);
-        armor[3] = createCustomItem(Material.NETHERITE_BOOTS, EquipmentSlot.FEET);
+        armor[3] = createCustomItem(Material.NETHERITE_HELMET, EquipmentSlot.HEAD);
+        armor[2] = createCustomItem(Material.NETHERITE_CHESTPLATE, EquipmentSlot.CHEST);
+        armor[1] = createCustomItem(Material.NETHERITE_LEGGINGS, EquipmentSlot.LEGS);
+        armor[0] = createCustomItem(Material.NETHERITE_BOOTS, EquipmentSlot.FEET);
 
         return armor;
     }

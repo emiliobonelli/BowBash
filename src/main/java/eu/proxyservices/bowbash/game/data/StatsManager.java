@@ -85,6 +85,9 @@ public class StatsManager {
     static List<UUID> loaded = new ArrayList<>();
 
     private static void loadUser(UUID uuid) {
+        if (!isConnected) {
+            return;
+        }
         Document doc = getDoc(uuid);
         if (doc == null) {
             createUser(uuid);
@@ -139,6 +142,9 @@ public class StatsManager {
         return stats;
     }
     public static void updateStat(UUID uuid, StatsType st) {
+        if (!isEnabled) {
+            return;
+        }
         if (!loaded.contains(uuid)) {
             loadUser(uuid);
         }

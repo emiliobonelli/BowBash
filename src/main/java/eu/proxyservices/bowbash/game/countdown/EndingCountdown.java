@@ -8,10 +8,9 @@ import org.bukkit.scheduler.BukkitTask;
 public class EndingCountdown implements Countdown {
 
     private BukkitTask bukkitTask;
-    private int currentTime = 10;
+    private int currentTime = 15;
 
     public EndingCountdown() {
-
         start();
     }
 
@@ -26,16 +25,16 @@ public class EndingCountdown implements Countdown {
         if (currentTime == 0) {
             interrupt();
             for (Player current : Bukkit.getOnlinePlayers()) {
-                current.sendMessage(BowBash.prefix + "§7Dieser Server wird nun heruntergefahren.");
+                current.sendMessage(BowBash.prefix + "§cDieser Server wird nun heruntergefahren.");
             }
-            Bukkit.shutdown();
+            Bukkit.spigot().restart();
         } else if (currentTime == 1) {
             for (Player current : Bukkit.getOnlinePlayers()) {
-                current.sendMessage(BowBash.prefix + "§7Dieser Server stoppt in einer Sekunde.");
+                current.sendMessage(BowBash.prefix + "§cDieser Server stoppt in einer Sekunde.");
             }
-        } else {
+        } else if (currentTime <= 5 && currentTime >= 2) {
             for (Player current : Bukkit.getOnlinePlayers()) {
-                current.sendMessage(BowBash.prefix + "§7Dieser Server stoppt in " + currentTime + " Sekunden.");
+                current.sendMessage(BowBash.prefix + "§cDieser Server stoppt in " + currentTime + " Sekunden.");
             }
         }
     }

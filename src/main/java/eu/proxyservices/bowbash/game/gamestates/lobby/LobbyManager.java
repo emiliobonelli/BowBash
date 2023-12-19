@@ -4,6 +4,7 @@ import eu.proxyservices.bowbash.BowBash;
 import eu.proxyservices.bowbash.game.*;
 import eu.proxyservices.bowbash.game.gamestates.ingame.GameKit;
 import eu.proxyservices.bowbash.game.gamestates.ingame.KitManager;
+import eu.proxyservices.bowbash.game.listener.GameDesignListener;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -19,6 +20,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.bukkit.Material.ENDER_EYE;
 import static org.bukkit.Material.ENDER_PEARL;
 
 public class LobbyManager implements Listener {
@@ -41,32 +44,48 @@ public class LobbyManager implements Listener {
     }
 
     public void prepare() {
-        mapVoteManager.countVotes();
-        mapVoteManager.getCurrentMap().loadLocations();
+      //  mapVoteManager.countVotes();
+      //  mapVoteManager.getCurrentMap().loadLocations();
+        GameDesignListener.setGamePreferences(mapVoteManager.getCurrentMap().getSpectatorSpawn().getWorld());
     }
 
-    public static void items(Player player) {
+    public void items(Player player) {
         player.getInventory().clear();
-        ItemStack kit = new ItemStack(Material.CHEST);
+        player.getInventory().setChestplate(new ItemStack(Material.ELYTRA));
+        ItemStack kit = new ItemStack(Material.LIGHT_GRAY_SHULKER_BOX);
         ItemMeta km = kit.getItemMeta();
         km.setDisplayName("§dKit auswählen");
         kit.setItemMeta(km);
-        player.getInventory().setItem(0, kit);
-        ItemStack nether = new ItemStack(Material.NETHER_STAR);
+        player.getInventory().setItem(1, kit);
+        ItemStack nether = new ItemStack((gameSession.getGamePlayer(player).getGameTeam() != null ? gameSession.getGamePlayer(player).getGameTeam().getTeamBanner() : Material.WHITE_BANNER), 1);
         ItemMeta nm = nether.getItemMeta();
-        nm.setDisplayName("§9Team auswählen");
+        nm.setDisplayName("§eTeam auswählen");
         nether.setItemMeta(nm);
-        player.getInventory().setItem(1, nether);
-        ItemStack leave = new ItemStack(Material.FIREWORK_STAR);
+        player.getInventory().setItem(2, nether);
+        ItemStack leave = new ItemStack(Material.RED_DYE);
         ItemMeta lm = leave.getItemMeta();
         lm.setDisplayName("§cSpiel verlassen");
         leave.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
         leave.setItemMeta(lm);
         player.getInventory().setItem(8, leave);
         if (player.hasPermission("bb.vip")) {
-            ItemStack start = new ItemStack(Material.GOLD_NUGGET);
+            if (gameSession.getGameManager().isEndless()) {
+                ItemStack endless = new ItemStack(ENDER_EYE);
+                ItemMeta em = endless.getItemMeta();
+                em.setDisplayName("§d∞-Modus: §aaktiviert");
+                endless.setItemMeta(em);
+                player.getInventory().setItem(5, endless);
+            } else {
+                ItemStack endless = new ItemStack(ENDER_PEARL);
+                ItemMeta em = endless.getItemMeta();
+                em.setDisplayName("§d∞-Modus: §cdeaktiviert");
+                endless.setItemMeta(em);
+                player.getInventory().setItem(5, endless);
+            }
+
+            ItemStack start = new ItemStack(Material.EMERALD);
             ItemMeta sm = start.getItemMeta();
-            sm.setDisplayName("§aStarten");
+            sm.setDisplayName("§aSpiel starten");
             start.setItemMeta(sm);
             player.getInventory().setItem(4, start);
 
@@ -75,7 +94,7 @@ public class LobbyManager implements Listener {
             im.setDisplayName("§eMap auswählen");
             map.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
             map.setItemMeta(im);
-            player.getInventory().setItem(5, map);
+            player.getInventory().setItem(6, map);
         }
     }
 
@@ -92,11 +111,11 @@ public class LobbyManager implements Listener {
             e.setCancelled(true);
             Player p = e.getPlayer();
             switch (e.getItem().getType()) {
-                case NETHER_STAR -> e.getPlayer().openInventory(teamInv());
-                case FIREWORK_STAR -> e.getPlayer().kickPlayer("");
-                case CHEST -> e.getPlayer().openInventory(kitInv(gameSession.getGamePlayer(p)));
+                case WHITE_BANNER, RED_BANNER, BLUE_BANNER, YELLOW_BANNER, LIME_BANNER  -> e.getPlayer().openInventory(teamInv());
+                case RED_DYE -> e.getPlayer().kickPlayer("");
+                case LIGHT_GRAY_SHULKER_BOX -> e.getPlayer().openInventory(kitInv(gameSession.getGamePlayer(p)));
                 case MAP -> e.getPlayer().openInventory(mapInv());
-                case GOLD_NUGGET -> {
+                case EMERALD -> {
                     if (gameSession.getCountdown().fast_start()) {
                         e.getPlayer().sendMessage(BowBash.prefix + "§aDu hast das Spiel gestartet!");
                     } else {
@@ -104,23 +123,23 @@ public class LobbyManager implements Listener {
                     }
                 }
                 case ENDER_EYE -> {
-                    e.getPlayer().getInventory().setItem(3, new ItemStack(ENDER_PEARL));
                     if (gameSession.getGameManager().isEndless()) {
                         gameSession.getGameManager().setEndless(false);
                         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
                         for (Player p1 : Bukkit.getOnlinePlayers()) {
+                            items(p);
                             p1.sendMessage(BowBash.prefix + "§d∞-Modus: §cdeaktiviert");
                             p1.sendMessage(BowBash.prefix + "§cDie Runde endet nun, nachdem ein Team durch Punkte gewonnen hat.");
                         }
                     }
                 }
                 case ENDER_PEARL -> {
-                    e.getPlayer().getInventory().setItem(3, new ItemStack(Material.ENDER_EYE));
                     if (!gameSession.getGameManager().isEndless()) {
                         gameSession.getGameManager().setEndless(true);
                         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1, 1);
                         for (Player p1 : Bukkit.getOnlinePlayers()) {
-                            p1.sendMessage(BowBash.prefix + "§d∞-Modus: §caktiviert");
+                            items(p);
+                            p1.sendMessage(BowBash.prefix + "§d∞-Modus: §aaktiviert");
                             p1.sendMessage(BowBash.prefix + "§cDie Runde hat ab sofort kein festes Ende und endet erst, nachdem nur noch ein Team übrig ist.");
                         }
                     }
@@ -135,7 +154,7 @@ public class LobbyManager implements Listener {
     public void click(InventoryClickEvent e) {
         if (gameSession.getCurrentGameState() == GameState.LOBBY) {
             e.setCancelled(true);
-            if (e.getView().getTitle().equals("§6Teamauswahl")) {
+            if (e.getView().getTitle().equals("§6Teamauswahl") && e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
                 switch (e.getCurrentItem().getItemMeta().getDisplayName()) {
                     case "§9Team Blau" -> {
                         if (gameSession.getGamePlayer((Player) e.getWhoClicked()) != null) {
@@ -162,23 +181,32 @@ public class LobbyManager implements Listener {
                         }
                     }
                 }
+                items((Player) e.getWhoClicked());
             } else if (e.getView().getTitle().equals("§dKitauswahl")) {
-                if (e.getCurrentItem().getType() != Material.AIR && e.getCurrentItem().getItemMeta() != null) {
+                if (e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
                     // no need to replace the color code, because it's the same as in the enum
                     gameSession.getGamePlayer((Player) e.getWhoClicked()).setGameKit(KitManager.getGameKitByName(e.getCurrentItem().getItemMeta().getDisplayName().replace(" §7(§aausgewählt§7)", "")));
                     e.getWhoClicked().closeInventory();
+                    e.getWhoClicked().sendMessage(BowBash.prefix + "§aDu hast das Kit §e" + e.getCurrentItem().getItemMeta().getDisplayName().replace(" §7(§aausgewählt§7)", "") + " §aausgewählt.");
+                    ((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                 }
             } else if (e.getView().getTitle().equals("§eMapauswahl")) {
-                if (e.getCurrentItem().getType() != Material.AIR && e.getCurrentItem().getItemMeta() != null) {
+                if (e.getCurrentItem() != null && e.getCurrentItem().getType() != Material.AIR) {
                     // name in enum is without color code
-                    mapVoteManager.forceMap(e.getCurrentItem().getItemMeta().getDisplayName().replace("§e", "").replace(" §7(§aausgewählt§7)", ""));
+                    String mapName = e.getCurrentItem().getItemMeta().getDisplayName().replace("§e", "").replace(" §7(§aausgewählt§7)", "");
+                    if (mapVoteManager.getCurrentMap() != mapVoteManager.getGameMapByName(mapName)) {
+                        mapVoteManager.forceMap(mapName);
+                        e.getWhoClicked().sendMessage(BowBash.prefix + "§aDu hast die Map §e" + e.getCurrentItem().getItemMeta().getDisplayName().replace("§e", "").replace(" §7(§aausgewählt§7)", "") + " §aausgewählt.");
+                        ((Player) e.getWhoClicked()).playSound(e.getWhoClicked().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
+                    } else {
+                        e.getWhoClicked().sendMessage(BowBash.prefix + "§cDie Map wurde bereits gewählt.");
+                    }
                     e.getWhoClicked().closeInventory();
-                    e.getWhoClicked().sendMessage(BowBash.prefix + "§aDu hast die Map §e" + e.getCurrentItem().getItemMeta().getDisplayName().replace("§e", "").replace(" (ausgewählt)", "") + " §aausgewählt.");
                 }
             }
         }
     }
-
+    /*
     @EventHandler
     public void b2(BlockBreakEvent e) {
         if (!gameSession.isRunning() && e.getPlayer().getGameMode() != GameMode.CREATIVE) {
@@ -192,12 +220,12 @@ public class LobbyManager implements Listener {
             e.setCancelled(true);
         }
     }
+    */
 
-
-    private org.bukkit.inventory.Inventory teamInv() {
-        org.bukkit.inventory.Inventory inv = Bukkit.createInventory(null, InventoryType.HOPPER, "§6Teamauswahl");
+    private Inventory teamInv() {
+        Inventory inv = Bukkit.createInventory(null, InventoryType.HOPPER, "§6Teamauswahl");
         for (GameTeam team : gameSession.getGameTeams()) {
-            ItemStack s1 = new ItemStack(team.getGlassBlock(), 1);
+            ItemStack s1 = new ItemStack(team.getTeamBlock(), 1);
             ItemMeta m1 = s1.getItemMeta();
             assert m1 != null;
             m1.setDisplayName(team.getColorCode() + "Team " + team.getName());
@@ -210,8 +238,8 @@ public class LobbyManager implements Listener {
         return inv;
     }
 
-    private org.bukkit.inventory.Inventory kitInv(GamePlayer gamePlayer) {
-        org.bukkit.inventory.Inventory inv = Bukkit.createInventory(null, InventoryType.CHEST, "§dKitauswahl");
+    private Inventory kitInv(GamePlayer gamePlayer) {
+        Inventory inv = Bukkit.createInventory(null, InventoryType.CHEST, "§dKitauswahl");
         for (GameKit gameKit : GameKit.values()) {
             ItemStack s1 = new ItemStack(gameKit.getIcon(), 1);
             ItemMeta m1 = s1.getItemMeta();
@@ -227,7 +255,7 @@ public class LobbyManager implements Listener {
 
             if (gamePlayer.getGameKit() == gameKit) {
                 m1.setDisplayName(gameKit.getName() + " §7(§aausgewählt§7)");
-                s1.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+                s1.addUnsafeEnchantment(Enchantment.LUCK, 1);
 
             }
             s1.setItemMeta(m1);
@@ -236,8 +264,8 @@ public class LobbyManager implements Listener {
         return inv;
     }
 
-    private org.bukkit.inventory.Inventory mapInv() {
-        org.bukkit.inventory.Inventory inv = Bukkit.createInventory(null, InventoryType.CHEST, "§eMapauswahl");
+    private Inventory mapInv() {
+        Inventory inv = Bukkit.createInventory(null, InventoryType.CHEST, "§eMapauswahl");
         for (GameMap gameMap : mapVoteManager.getGameMaps()) {
 
             ItemStack s1 = new ItemStack(gameMap.getMapItem(), 1);

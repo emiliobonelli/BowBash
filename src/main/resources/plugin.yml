@@ -19,8 +19,12 @@ commands:
 
   endless:
     description: BowBash endless command
+    permission: bb.vip
+    permission-message: You don't have permission to use this command.
     usage: /endless
 
   savestats:
     description: BowBash savestats command
+    permission: bb.admin
+    permission-message: You don't have permission to use this command.
     usage: /savestats

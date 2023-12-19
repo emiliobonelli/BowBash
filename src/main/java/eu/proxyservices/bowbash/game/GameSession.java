@@ -5,6 +5,8 @@ import eu.proxyservices.bowbash.game.gamestates.ingame.GameManager;
 import eu.proxyservices.bowbash.game.gamestates.lobby.LobbyManager;
 import org.bukkit.entity.Player;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,5 +40,8 @@ public interface GameSession {
 
     GameMap getMap();
 
+    long getGameTime();
+
+    void setStartTime(Instant gameTime);
 
 }

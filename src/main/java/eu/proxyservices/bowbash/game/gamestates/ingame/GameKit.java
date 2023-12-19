@@ -5,9 +5,14 @@ import org.bukkit.inventory.ItemStack;
 
 public enum GameKit {
 
-    Standard("§7Standard", "", Material.BOW, new String[]{"§7Eisenrüstung", "§7Einfacher Bogen"}, new ItemStack[] {}, new ItemStack[] {}),
-    Rescuer("§eRescuer", "bb.kit.rescuer", Material.BLAZE_ROD, new String[]{"§7Punch-II Bogen", "§eRettungsplattform", "§716x Blöcke", "§7Eisenrüstung"}, new ItemStack[] {}, new ItemStack[] {}),
-    Tank("§dTank", "bb.kit.tank", Material.DIAMOND_CHESTPLATE, new String[]{"§7Verstärkter Bogen", "§bNetherite Rüstung §7mit §b35% §7weniger Rückschlag", "32x Blöcke" }, new ItemStack[] {}, new ItemStack[] {});
+    Standard("§7Standard", "", Material.BOW, new String[]{"§7Einfacher Bogen", "§7Eisenrüstung", "§58x Blöcke"}, new ItemStack[] {}, new ItemStack[] {}),
+    Rescuer("§eRescuer", "bb.kit.rescuer", Material.BLAZE_ROD, new String[]{"§bPunch-II Bogen", "§eRettungsplattform", "§7Eisenrüstung", "§516x Blöcke"}, new ItemStack[] {}, new ItemStack[] {}),
+    Tank("§dTank", "bb.kit.tank", Material.DIAMOND_CHESTPLATE,
+            new String[]{"§bVerstärkter Bogen", "§bNetherite Rüstung §7mit §b35% §7weniger Rückschlag", "§532x Blöcke"},
+            new ItemStack[] {new ItemStack(Material.BOW, 1), new ItemStack(Material.ARROW, 1)},
+            new ItemStack[] {new ItemStack(Material.NETHERITE_HELMET, 1), new ItemStack(Material.NETHERITE_CHESTPLATE, 1), new ItemStack(Material.NETHERITE_LEGGINGS, 1), new ItemStack(Material.NETHERITE_BOOTS, 1)}
+    );
+
 
     private final String name;
     private final String permission;

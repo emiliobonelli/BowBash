@@ -39,4 +39,10 @@ tasks {
     build {
         dependsOn('shadowJar')
     }
+    copy {
+        dependsOn('build')
+        from('build/libs')
+        into('C:\\Users\\emili\\Desktop\\mc\\plugins')
+        include('*-all.jar')
+    }
 }

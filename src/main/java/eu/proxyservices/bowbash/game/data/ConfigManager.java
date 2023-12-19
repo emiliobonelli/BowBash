@@ -56,6 +56,7 @@ public class ConfigManager {
         loc_yml.addDefault("Standard.author", "ProxyUser");
         loc_yml.addDefault("Standard.teams", 2);
         loc_yml.addDefault("Standard.item", "BOW");
+        loc_yml.addDefault("Standard.minHeight", 0);
         loc_yml.addDefault("Standard.world", "standard");
 
         cnf_yml.setComments("MongoDB", Arrays.asList(new String[]{"MongoDB settings for the stats database"}));
@@ -115,6 +116,9 @@ public class ConfigManager {
         throw new NullPointerException("ConfigManager: no maps in location.yml found! Cannot load maps!");
     }
 
+    public static int loadMinHeight(String map) {
+        return loc_yml.getInt(map + ".minHeight");
+    }
 
     public static Location loadSpawn(String map, String team) {
         World w = Bukkit.getWorld(loc_yml.getString(map + ".world"));
@@ -157,6 +161,16 @@ public class ConfigManager {
         loc_yml.set(map + ".spawn." + team + ".z", location.getZ());
         loc_yml.set(map + ".spawn." + team + ".yaw", location.getYaw());
         loc_yml.set(map + ".spawn." + team + ".pitch", location.getPitch());
+        try {
+            loc_yml.save(loc_file);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public static boolean setMinHeight(String map, int height) {
+        loc_yml.set(map + ".minHeight", height);
         try {
             loc_yml.save(loc_file);
             return true;

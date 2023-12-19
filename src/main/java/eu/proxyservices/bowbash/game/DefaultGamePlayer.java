@@ -14,7 +14,7 @@ public class DefaultGamePlayer implements GamePlayer {
         this.gameSession = gameSession;
         this.player = player;
         this.gameTeam = null;
-        this.gameKit = null;
+        this.gameKit = GameKit.Standard;
     }
 
     public Player getPlayer() {

@@ -11,6 +11,8 @@ import eu.proxyservices.bowbash.game.gamestates.ingame.GameManager;
 import eu.proxyservices.bowbash.game.gamestates.lobby.LobbyManager;
 import org.bukkit.entity.Player;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +25,7 @@ public class DefaultGameSession implements GameSession {
     private final ArrayList<GameTeam> gameTeams = new ArrayList<>();
     private final int maxPlayersPerTeam;
 
+    private Instant gameStartTime;
     private GameState gameState;
     private Countdown countdown;
     private GameMap map;
@@ -73,7 +76,12 @@ public class DefaultGameSession implements GameSession {
     }
 
     public void removeGamePlayer(Player player) {
-        gamePlayerMap.remove(player);
+        if (gamePlayerMap.containsKey(player)) {
+            if (gamePlayerMap.get(player).getGameTeam() != null) {
+                gamePlayerMap.get(player).getGameTeam().getGamePlayerList().remove(gamePlayerMap.get(player));
+            }
+            gamePlayerMap.remove(player);
+        }
     }
 
     public boolean isRunning() {
@@ -86,10 +94,14 @@ public class DefaultGameSession implements GameSession {
             countdown = new LobbyCountdown(this);
         } else if (gameState == GameState.IN_GAME) {
             new IngameCountdown(this);
+
             gameManager.runScoreboard();
 
         } else if (gameState == GameState.ENDING) {
             new ResultManager();
+        } else if (gameState == GameState.SETUP) {
+            countdown.interrupt();
+            countdown = null;
         }
     }
 
@@ -113,4 +125,17 @@ public class DefaultGameSession implements GameSession {
         return this.map;
     }
 
+    @Override
+    public long getGameTime() {
+        if (gameStartTime == null) {
+            return 0;
+        } else {
+            return Duration.between(gameStartTime, Instant.now()).getSeconds();
+        }
+    }
+
+    @Override
+    public void setStartTime(Instant gameTime) {
+        this.gameStartTime = gameTime;
+    }
 }
